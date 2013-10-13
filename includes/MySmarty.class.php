@@ -27,10 +27,11 @@ class MySmarty extends Smarty {
 		return $opt;
 	}
 
-	public function display($t) {
-		parent::assign('isadmin', $_SESSION['admin']);
+	public function display($t = NULL, $cache_id = NULL, $compile_id = NULL, $parent = NULL) {
+		$isadmin = isset($_SESSION['admin']) ? $_SESSION['admin'] : false;
+		parent::assign('isadmin', $isadmin);
 		parent::assign('opt', $this->opt());
-		parent::display($t);
+		parent::display($t, $cache_id, $compile_id, $parent);
 	}
 }
 ?>

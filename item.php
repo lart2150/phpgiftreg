@@ -17,7 +17,7 @@ require_once(dirname(__FILE__) . "/includes/funcLib.php");
 require_once(dirname(__FILE__) . "/includes/MySmarty.class.php");
 $smarty = new MySmarty();
 $opt = $smarty->opt();
-
+$haserror = false;
 session_start();
 if (!isset($_SESSION["userid"])) {
 	header("Location: " . getFullPath("login.php"));
@@ -88,10 +88,10 @@ if (!empty($_REQUEST["action"])) {
 	}
 
 	if (!$haserror) {
-		if ($_REQUEST["image"] == "remove" || $_REQUEST["image"] == "replace") {
+		if (isset($_REQUEST["image"]) && ($_REQUEST["image"] == "remove" || $_REQUEST["image"] == "replace")) {
 			deleteImageForItem((int) $_REQUEST["itemid"], $smarty->dbh(), $smarty->opt());
 		}
-		if ($_REQUEST["image"] == "upload" || $_REQUEST["image"] == "replace") {
+		if (isset($_REQUEST["image"]) && ($_REQUEST["image"] == "upload" || $_REQUEST["image"] == "replace")) {
 			/* TODO: verify that it's an image using $_FILES["imagefile"]["type"] */
 			// what's the extension?
 			$parts = pathinfo($_FILES["imagefile"]["name"]);
