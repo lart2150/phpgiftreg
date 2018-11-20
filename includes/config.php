@@ -31,7 +31,7 @@ function getGlobalOptions() {
 			0 = auto-approve,
 			1 = require approval
 		*/
-		"shop_requires_approval" => 1,
+		"shop_requires_approval" => 0,
 
 		/* Whether or not requesting a new account is immediately approved.
 			0 = auto-approve,
@@ -46,10 +46,10 @@ function getGlobalOptions() {
 		"items_per_page" => 10,
 
 		/* The e-mail From: header. */
-		"email_from" => "webmaster@" . $_SERVER['SERVER_NAME'],
+		"email_from" => "phpgift@engert.us",
 
 		/* The e-mail Reply-To: header. */
-		"email_reply_to" => "rwalberg@mts.net",
+		"email_reply_to" => "phpgift@engert.us",
 
 		/* The e-mail X-Mailer header. */
 		"email_xmailer" => "PHP/" . phpversion(),
@@ -121,18 +121,13 @@ function getGlobalOptions() {
 			0 = don't allow images,
 			1 = allow images
 		*/
-		"allow_images" => 1,
+		"allow_images" => 0,
 
 		/* The *sub*-directory we we can store item images.  If you don't want to
 			allow images to be attached to items, leave this variable empty ("").
 			Trailing / is optional.
 		*/
-		"image_subdir" => "item_images",
-		
-		/* The number of minutes in between subscription notifications so the subscribers
-			don't get flooded with updates.
-		*/
-		"notify_threshold_minutes" => 60
+		"image_subdir" => "item_images"
 	);
 }
 ?>
