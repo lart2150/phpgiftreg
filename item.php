@@ -18,6 +18,7 @@ require_once(dirname(__FILE__) . "/includes/MySmarty.class.php");
 $smarty = new MySmarty();
 $opt = $smarty->opt();
 $haserror = false;
+$image_filename = "";
 session_start();
 if (!isset($_SESSION["userid"])) {
 	header("Location: " . getFullPath("login.php"));
@@ -37,7 +38,7 @@ if (isset($_REQUEST["itemid"]) && $_REQUEST["itemid"] != "") {
 	try {
 		$stmt = $smarty->dbh()->prepare("SELECT * FROM {$opt["table_prefix"]}items WHERE userid = ? AND itemid = ?");
 		$stmt->bindParam(1, $userid, PDO::PARAM_INT);
-		$stmt->bindValue(2, (int) $_REQUEST["itemid"], PDO::PARAM_INT);
+		$stmt->bindValue(2, (int) requestParam("itemid"), PDO::PARAM_INT);
 		$stmt->execute();
 		if (!$stmt->fetch()) {
 			die("Nice try! (That's not your item.)");
@@ -54,14 +55,14 @@ if (!empty($_REQUEST["action"])) {
 	
 	if ($action == "insert" || $action == "update") {
 		/* validate the data. */
-		$description = trim($_REQUEST["description"]);
-		$price = str_replace(",","",trim($_REQUEST["price"]));
-		$source = trim($_REQUEST["source"]);
-		$url = trim($_REQUEST["url"]);
-		$category = trim($_REQUEST["category"]);
-		$ranking = $_REQUEST["ranking"];
-		$comment = $_REQUEST["comment"];
-		$quantity = (int) $_REQUEST["quantity"];
+		$description = trim(requestParam("description"));
+		$price = str_replace(",","",trim(requestParam("price")));
+		$source = trim(requestParam("source"));
+		$url = trim(requestParam("url"));
+		$category = trim(requestParam("category"));
+		$ranking = requestParam("ranking");
+		$comment = requestParam("comment");
+		$quantity = (int) requestParam("quantity");
 
 		$haserror = false;
 		if ($description == "") {
@@ -107,15 +108,21 @@ if (!empty($_REQUEST["action"])) {
 			}
 		}
 		if (!$haserror && $action == "update" && ($imageaction == "remove" || $imageaction == "replace")) {
-			deleteImageForItem((int) $_REQUEST["itemid"], $smarty->dbh(), $smarty->opt());
+			deleteImageForItem((int) requestParam("itemid"), $smarty->dbh(), $smarty->opt());
 		}
 	}
 	
 	if ($action == "delete") {
 		try {
+			// the item's description, for the notifications below.
+			$stmt = $smarty->dbh()->prepare("SELECT description FROM {$opt["table_prefix"]}items WHERE itemid = ?");
+			$stmt->bindValue(1, (int) requestParam("itemid"), PDO::PARAM_INT);
+			$stmt->execute();
+			$description = $stmt->fetchColumn();
+
 			/* find out if this item is bought or reserved. */
 			$stmt = $smarty->dbh()->prepare("SELECT a.userid, a.quantity, a.bought, i.description FROM {$opt["table_prefix"]}allocs a LEFT OUTER JOIN {$opt["table_prefix"]}items i ON i.itemid = a.itemid WHERE a.itemid = ?");
-			$stmt->bindValue(1, (int) $_REQUEST["itemid"], PDO::PARAM_INT);
+			$stmt->bindValue(1, (int) requestParam("itemid"), PDO::PARAM_INT);
 			$stmt->execute();
 			while ($row = $stmt->fetch()) {
 				$buyerid = $row["userid"];
@@ -131,10 +138,10 @@ if (!empty($_REQUEST["action"])) {
 				}
 			}
 	
-			deleteImageForItem((int) $_REQUEST["itemid"], $smarty->dbh(), $smarty->opt());
+			deleteImageForItem((int) requestParam("itemid"), $smarty->dbh(), $smarty->opt());
 
 			$stmt = $smarty->dbh()->prepare("DELETE FROM {$opt["table_prefix"]}items WHERE itemid = ?");
-			$stmt->bindValue(1, (int) $_REQUEST["itemid"], PDO::PARAM_INT);
+			$stmt->bindValue(1, (int) requestParam("itemid"), PDO::PARAM_INT);
 			$stmt->execute();
 
 			// TODO: are we leaking allocs records here?
@@ -151,7 +158,7 @@ if (!empty($_REQUEST["action"])) {
 	}
 	else if ($action == "edit") {
 		$stmt = $smarty->dbh()->prepare("SELECT description, price, source, category, url, ranking, comment, quantity, image_filename FROM {$opt["table_prefix"]}items WHERE itemid = ?");
-		$stmt->bindValue(1, (int) $_REQUEST["itemid"], PDO::PARAM_INT);
+		$stmt->bindValue(1, (int) requestParam("itemid"), PDO::PARAM_INT);
 		$stmt->execute();
 
 		if ($row = $stmt->fetch()) {
@@ -226,10 +233,10 @@ if (!empty($_REQUEST["action"])) {
 		    $stmt->bindParam(8, $quantity, PDO::PARAM_INT);
 		    if ($image_base_filename != "") {
 				$stmt->bindParam(9, $image_base_filename, PDO::PARAM_STR);
-				$stmt->bindValue(10, (int) $_REQUEST["itemid"], PDO::PARAM_INT);
+				$stmt->bindValue(10, (int) requestParam("itemid"), PDO::PARAM_INT);
 			}
 			else {
-				$stmt->bindValue(9, (int) $_REQUEST["itemid"], PDO::PARAM_INT);
+				$stmt->bindValue(9, (int) requestParam("itemid"), PDO::PARAM_INT);
 			}
 			$stmt->execute();
 

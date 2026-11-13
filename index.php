@@ -50,46 +50,46 @@ if (!empty($_GET["action"])) {
 	$action = $_GET["action"];
 	if ($action == "ack") {
 		$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}messages SET isread = 1 WHERE messageid = ? AND recipient = ?");
-		$stmt->bindValue(1, (int) $_GET["messageid"], PDO::PARAM_INT);
+		$stmt->bindValue(1, (int) getParam("messageid"), PDO::PARAM_INT);
 		$stmt->bindParam(2, $userid, PDO::PARAM_INT);
 		$stmt->execute();
 	}
 	else if ($action == "approve") {
 		$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}shoppers SET pending = 0 WHERE shopper = ? AND mayshopfor = ?");
-		$stmt->bindValue(1, (int) $_GET["shopper"], PDO::PARAM_INT);
+		$stmt->bindValue(1, (int) getParam("shopper"), PDO::PARAM_INT);
 		$stmt->bindParam(2, $userid, PDO::PARAM_INT);
 		$stmt->execute();
-		sendMessage($userid,(int) $_GET["shopper"],$_SESSION["fullname"] . " has approved your request to shop for him/her.", $smarty->dbh(), $smarty->opt());
+		sendMessage($userid,(int) getParam("shopper"),$_SESSION["fullname"] . " has approved your request to shop for him/her.", $smarty->dbh(), $smarty->opt());
 	}
 	else if ($action == "decline") {
 		$stmt = $smarty->dbh()->prepare("DELETE FROM {$opt["table_prefix"]}shoppers WHERE shopper = ? AND mayshopfor = ?"); 
-		$stmt->bindValue(1, (int) $_GET["shopper"], PDO::PARAM_INT);
+		$stmt->bindValue(1, (int) getParam("shopper"), PDO::PARAM_INT);
 		$stmt->bindParam(2, $userid, PDO::PARAM_INT);
 		$stmt->execute();
-		sendMessage($userid,(int) $_GET["shopper"],$_SESSION["fullname"] . " has declined your request to shop for him/her.", $smarty->dbh(), $smarty->opt());
+		sendMessage($userid,(int) getParam("shopper"),$_SESSION["fullname"] . " has declined your request to shop for him/her.", $smarty->dbh(), $smarty->opt());
 	}
 	else if ($action == "request") {
 		$stmt = $smarty->dbh()->prepare("INSERT INTO {$opt["table_prefix"]}shoppers(shopper,mayshopfor,pending) VALUES(?, ?, ?)");
 		$stmt->bindParam(1, $userid, PDO::PARAM_INT);
-		$stmt->bindValue(2, (int) $_GET["shopfor"], PDO::PARAM_INT);
+		$stmt->bindValue(2, (int) getParam("shopfor"), PDO::PARAM_INT);
 		$stmt->bindValue(3, $opt["shop_requires_approval"], PDO::PARAM_BOOL);
 		$stmt->execute();
 		if ($opt["shop_requires_approval"]) {
-			sendMessage($userid,(int) $_GET["shopfor"],$_SESSION["fullname"] . " has requested to shop for you.  Please approve or decline this request.", $smarty->dbh(), $smarty->opt());
+			sendMessage($userid,(int) getParam("shopfor"),$_SESSION["fullname"] . " has requested to shop for you.  Please approve or decline this request.", $smarty->dbh(), $smarty->opt());
 		}
 	}
 	else if ($action == "cancel") {
 		// this works for either cancelling a request or "unshopping" for a user.
 		$stmt = $smarty->dbh()->prepare("DELETE FROM {$opt["table_prefix"]}shoppers WHERE shopper = ? AND mayshopfor = ?");
 		$stmt->bindParam(1, $userid, PDO::PARAM_INT);
-		$stmt->bindValue(2, (int) $_GET["shopfor"], PDO::PARAM_INT);
+		$stmt->bindValue(2, (int) getParam("shopfor"), PDO::PARAM_INT);
 		$stmt->execute();
 	}
 	else if ($action == "subscribe") {
 		// ensure the current user can shop for that user first.
 		$stmt = $smarty->dbh()->prepare("SELECT pending FROM {$opt["table_prefix"]}shoppers WHERE shopper = ? AND mayshopfor = ?");
 		$stmt->bindParam(1, $userid, PDO::PARAM_INT);
-		$stmt->bindValue(2, (int) $_GET["shoppee"], PDO::PARAM_INT);
+		$stmt->bindValue(2, (int) getParam("shoppee"), PDO::PARAM_INT);
 		$stmt->execute();
 		if ($row = $stmt->fetch()) {
 			if ($row["pending"]) {
@@ -101,13 +101,13 @@ if (!empty($_GET["action"])) {
 		}
 
 		$stmt = $smarty->dbh()->prepare("INSERT INTO {$opt["table_prefix"]}subscriptions(publisher, subscriber) VALUES(?, ?)");
-		$stmt->bindValue(1, (int) $_GET["shoppee"], PDO::PARAM_INT);
+		$stmt->bindValue(1, (int) getParam("shoppee"), PDO::PARAM_INT);
 		$stmt->bindParam(2, $userid, PDO::PARAM_INT);
 		$stmt->execute();
 	}
 	else if ($action == "unsubscribe") {
 		$stmt = $smarty->dbh()->prepare("DELETE FROM {$opt["table_prefix"]}subscriptions WHERE publisher = ? AND subscriber = ?");
-		$stmt->bindValue(1, (int) $_GET["shoppee"], PDO::PARAM_INT);
+		$stmt->bindValue(1, (int) getParam("shoppee"), PDO::PARAM_INT);
 		$stmt->bindParam(2, $userid, PDO::PARAM_INT);
 		$stmt->execute();
 	}

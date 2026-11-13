@@ -45,12 +45,12 @@ requireCsrfForAction(array("edit"));
 
 if ($action == "insert" || $action == "update") {
 	/* validate the data. */
-	$username = trim($_GET["username"]);
-	$fullname = trim($_GET["fullname"]);
-	$email = trim($_GET["email"]);
-	$email_msgs = (strtoupper($_GET["email_msgs"]) == "ON" ? 1 : 0);
-	$approved = (strtoupper($_GET["approved"]) == "ON" ? 1 : 0);
-	$userisadmin = (strtoupper($_GET["admin"]) == "ON" ? 1 : 0);
+	$username = trim(getParam("username"));
+	$fullname = trim(getParam("fullname"));
+	$email = trim(getParam("email"));
+	$email_msgs = (strtoupper(getParam("email_msgs")) == "ON" ? 1 : 0);
+	$approved = (strtoupper(getParam("approved")) == "ON" ? 1 : 0);
+	$userisadmin = (strtoupper(getParam("admin")) == "ON" ? 1 : 0);
 		
 	$haserror = false;
 	if ($username == "") {
@@ -75,7 +75,7 @@ if ($action == "insert" || $action == "update") {
 if ($action == "delete") {
 	// MySQL is too l4m3 to have cascade deletes, so we'll have to do the
 	// work ourselves.
-	$deluserid = (int) $_GET["userid"];
+	$deluserid = (int) getParam("userid");
 	
 	$stmt = $smarty->dbh()->prepare("DELETE FROM {$opt["table_prefix"]}shoppers WHERE shopper = ? OR mayshopfor = ?");
 	$stmt->bindParam(1, $deluserid, PDO::PARAM_INT);
@@ -105,7 +105,7 @@ if ($action == "delete") {
 }
 else if ($action == "edit") {
 	$stmt = $smarty->dbh()->prepare("SELECT username, fullname, email, email_msgs, approved, admin FROM {$opt["table_prefix"]}users WHERE userid = ?");
-	$stmt->bindValue(1, (int) $_GET["userid"], PDO::PARAM_INT);
+	$stmt->bindValue(1, (int) getParam("userid"), PDO::PARAM_INT);
 	$stmt->execute();
 	if ($row = $stmt->fetch()) {
 		$username = $row["username"];
@@ -165,14 +165,14 @@ else if ($action == "update") {
 		$stmt->bindParam(4, $email_msgs, PDO::PARAM_BOOL);
 		$stmt->bindParam(5, $approved, PDO::PARAM_BOOL);
 		$stmt->bindParam(6, $userisadmin, PDO::PARAM_BOOL);
-		$stmt->bindValue(7, (int) $_GET["userid"], PDO::PARAM_INT);
+		$stmt->bindValue(7, (int) getParam("userid"), PDO::PARAM_INT);
 		$stmt->execute();
 		header("Location: " . getFullPath("users.php?message=User+updated."));
 		exit;		
 	}
 }
 else if ($action == "reset") {
-	$resetuserid = (int) $_GET["userid"];
+	$resetuserid = (int) getParam("userid");
 
 	// always mail the address on file -- never one supplied in the request.
 	$stmt = $smarty->dbh()->prepare("SELECT email FROM {$opt["table_prefix"]}users WHERE userid = ?");
@@ -212,7 +212,7 @@ while ($row = $stmt->fetch()) {
 }
 
 $smarty->assign('action', $action);
-$smarty->assign('edituserid', (int) $_GET["userid"]);
+$smarty->assign('edituserid', (int) getParam("userid"));
 $smarty->assign('username', $username);
 if (isset($username_error)) {
 	$smarty->assign('username_error', $username_error);

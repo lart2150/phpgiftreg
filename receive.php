@@ -32,7 +32,7 @@ else {
 requireCsrf();
 
 $action = (!empty($_GET["action"]) ? $_GET["action"] : "");
-$itemid = (int) $_GET["itemid"];
+$itemid = (int) getParam("itemid");
 
 // get details. is it our item? is this a single-quantity item?
 try {
@@ -69,11 +69,11 @@ try {
 	}
 	else if ($action == "receive") {
 		// $actual will be a negative number, so let's flip it.
-		$actual = -adjustAllocQuantity($itemid, (int) $_GET["buyer"], 1, -1 * (int) $_GET["quantity"], $smarty->dbh(), $smarty->opt());
+		$actual = -adjustAllocQuantity($itemid, (int) getParam("buyer"), 1, -1 * (int) getParam("quantity"), $smarty->dbh(), $smarty->opt());
 	
-		if ($actual < (int) $_GET["quantity"]) {
+		if ($actual < (int) getParam("quantity")) {
 			// $userid didn't have that many bought, so some might have been reserved.
-			$actual += -adjustAllocQuantity($itemid,(int) $_GET["buyer"],0,-1 * ((int) $_GET["quantity"] - $actual), $smarty->dbh(), $smarty->opt());
+			$actual += -adjustAllocQuantity($itemid,(int) getParam("buyer"),0,-1 * ((int) getParam("quantity") - $actual), $smarty->dbh(), $smarty->opt());
 		}
 	
 		if ($actual == $quantity) {

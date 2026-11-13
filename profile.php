@@ -36,7 +36,7 @@ if (!empty($_POST["action"])) {
 	$action = $_POST["action"];
 	
 	if ($action == "changepwd") {
-		$newpwd = $_POST["newpwd"];
+		$newpwd = postParam("newpwd");
 
 		try {
 			$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}users SET password = ? WHERE userid = ?");
@@ -53,9 +53,9 @@ if (!empty($_POST["action"])) {
 		}
 	}
 	else if ($action == "save") {
-		$fullname = $_POST["fullname"];
-		$email = $_POST["email"];
-		$comment = $_POST["comment"];
+		$fullname = postParam("fullname");
+		$email = postParam("email");
+		$comment = postParam("comment");
 		$email_msgs = (isset($_POST["email_msgs"]) && $_POST["email_msgs"] == "on" ? 1 : 0);
 
 		if ($email != "" && !isValidEmail($email)) {

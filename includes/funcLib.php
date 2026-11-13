@@ -30,6 +30,25 @@ if (!headers_sent()) {
 	header("Referrer-Policy: same-origin");
 }
 
+/* Read a request parameter as a string without PHP 8 "Undefined array key"
+	warnings.  Missing parameters (e.g. unchecked checkboxes) and non-scalar
+	values (e.g. ?x[]=1) return $default. */
+function paramFrom($source, $name, $default = "") {
+	return (isset($source[$name]) && is_scalar($source[$name])) ? (string) $source[$name] : $default;
+}
+
+function getParam($name, $default = "") {
+	return paramFrom($_GET, $name, $default);
+}
+
+function postParam($name, $default = "") {
+	return paramFrom($_POST, $name, $default);
+}
+
+function requestParam($name, $default = "") {
+	return paramFrom($_REQUEST, $name, $default);
+}
+
 function isHttps() {
 	return (!empty($_SERVER["HTTPS"]) && strtolower($_SERVER["HTTPS"]) != "off") ||
 		(isset($_SERVER["SERVER_PORT"]) && $_SERVER["SERVER_PORT"] == "443");

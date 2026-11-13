@@ -33,6 +33,8 @@ else {
 
 // state-changing requests must carry the per-session CSRF token.
 requireCsrfForAction(array("edit"));
+
+$haserror = false;
 if (!empty($_GET["message"])) {
     $message = $_GET["message"];
 }
@@ -48,7 +50,7 @@ else {
 
 if ($action == "insert" || $action == "update") {
 	/* validate the data. */
-	$familyname = trim($_GET["familyname"]);
+	$familyname = trim(getParam("familyname"));
 		
 	$haserror = false;
 	if ($familyname == "") {
@@ -128,7 +130,7 @@ else if ($action == "update") {
 	}
 }
 else if ($action == "members") {
-	$members = isset($_GET["members"]) ? $_GET["members"] : array();
+	$members = (isset($_GET["members"]) && is_array($_GET["members"])) ? $_GET["members"] : array();
 	try {
 		/* first, delete all memberships for this family. */
 		$stmt = $smarty->dbh()->prepare("DELETE FROM {$opt["table_prefix"]}memberships WHERE familyid = ?");
@@ -136,9 +138,9 @@ else if ($action == "members") {
 		$stmt->execute();
 
 		/* now add them back. */
-		foreach ($members as $userid) {
+		foreach ($members as $memberid) {
 			$stmt = $smarty->dbh()->prepare("INSERT INTO {$opt["table_prefix"]}memberships(userid,familyid) VALUES(?, ?)");
-			$stmt->bindParam(1, $userid, PDO::PARAM_INT);
+			$stmt->bindValue(1, (int) $memberid, PDO::PARAM_INT);
 			$stmt->bindParam(2, $familyid, PDO::PARAM_INT);
 			$stmt->execute();
 		}

@@ -18,11 +18,13 @@ require_once(dirname(__FILE__) . "/includes/MySmarty.class.php");
 $smarty = new MySmarty();
 $opt = $smarty->opt();
 
+$username = $fullname = $email = $familyid = "";
+
 if (isset($_POST["action"]) && $_POST["action"] == "signup") {
-	$username = $_POST["username"];
-	$fullname = $_POST["fullname"];
-	$email = $_POST["email"];
-	$familyid = $_POST["familyid"];
+	$username = postParam("username");
+	$fullname = postParam("fullname");
+	$email = postParam("email");
+	$familyid = postParam("familyid");
 		
 	// make sure that username isn't taken.
 	$stmt = $smarty->dbh()->prepare("SELECT userid FROM {$opt["table_prefix"]}users WHERE username = ?");
@@ -108,7 +110,7 @@ $smarty->assign('fullname', $fullname);
 $smarty->assign('email', $email);
 $smarty->assign('familyid', $familyid);
 $smarty->assign('familycount', count($families));
-$smarty->assign('action', $_POST["action"]);
+$smarty->assign('action', postParam("action"));
 if (isset($error)) {
 	$smarty->assign('error', $error);
 }

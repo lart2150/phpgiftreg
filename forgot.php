@@ -19,7 +19,7 @@ $smarty = new MySmarty();
 $opt = $smarty->opt();
 
 if (isset($_POST["action"]) && $_POST["action"] == "forgot") {
-	$username = $_POST["username"];
+	$username = postParam("username");
 
 	try {
 		// make sure that username is valid 
@@ -55,7 +55,7 @@ if (isset($_POST["action"]) && $_POST["action"] == "forgot") {
 		if (!empty($error)) {
 			$smarty->assign('error', $error);
 		}
-		$smarty->assign('action', $_POST["action"]);
+		$smarty->assign('action', postParam("action"));
 		$smarty->assign('username', $username);
 		$smarty->display('forgot.tpl');
 	}

@@ -33,7 +33,7 @@ requireCsrfForAction();
 $action = "";
 if (!empty($_GET["action"])) {
 	$action = $_GET["action"];
-	$itemid = (int) $_GET["itemid"];
+	$itemid = (int) getParam("itemid");
 
 	// the item must belong to someone this user is approved to shop for.
 	$stmt = $smarty->dbh()->prepare("SELECT userid FROM {$opt["table_prefix"]}items WHERE itemid = ?");
@@ -97,7 +97,7 @@ if (!empty($_GET["action"])) {
 	}
 }
 
-$shopfor = (int) $_GET["shopfor"];
+$shopfor = (int) getParam("shopfor");
 if ($shopfor == $userid) {
 	echo "Nice try! (You can't shop for yourself.)";
 	exit;
@@ -115,7 +115,7 @@ if (!isset($_GET["sort"])) {
 	$sortby = "rankorder DESC, description";
 }
 else {
-	$sort = $_GET["sort"];
+	$sort = getParam("sort");
 	switch ($sort) {
 		case "ranking":
 			$sortby = "rankorder DESC, description";

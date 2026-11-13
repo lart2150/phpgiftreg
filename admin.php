@@ -34,23 +34,23 @@ else {
 // state-changing requests must carry the per-session CSRF token.
 requireCsrfForAction();
 
-$action = $_GET["action"];
+$action = getParam("action");
 if ($action == "approve") {
 	$pwd = generatePassword($opt);
-	if ($_GET["familyid"] != "") {
+	if (getParam("familyid") != "") {
 		$stmt = $smarty->dbh()->prepare("INSERT INTO {$opt["table_prefix"]}memberships(userid,familyid) VALUES(?, ?)");
-		$stmt->bindValue(1, (int) $_GET["userid"], PDO::PARAM_INT);
-		$stmt->bindValue(2, (int) $_GET["familyid"], PDO::PARAM_INT);
+		$stmt->bindValue(1, (int) getParam("userid"), PDO::PARAM_INT);
+		$stmt->bindValue(2, (int) getParam("familyid"), PDO::PARAM_INT);
 		$stmt->execute();
 	}
 	$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}users SET approved = 1, password = ? WHERE userid = ?");
 	$stmt->bindValue(1, hashPassword($pwd), PDO::PARAM_STR);
-	$stmt->bindValue(2, (int) $_GET["userid"], PDO::PARAM_INT);
+	$stmt->bindValue(2, (int) getParam("userid"), PDO::PARAM_INT);
 	$stmt->execute();
 	
 	// send the e-mails
 	$stmt = $smarty->dbh()->prepare("SELECT username, email FROM {$opt["table_prefix"]}users WHERE userid = ?");
-	$stmt->bindValue(1, (int) $_GET["userid"], PDO::PARAM_INT);
+	$stmt->bindValue(1, (int) getParam("userid"), PDO::PARAM_INT);
 	$stmt->execute();
 	if ($row = $stmt->fetch()) {
 		mail(
@@ -67,7 +67,7 @@ if ($action == "approve") {
 else if ($action == "reject") {
 	// send the e-mails
 	$stmt = $smarty->dbh()->prepare("SELECT email FROM {$opt["table_prefix"]}users WHERE userid = ?");
-	$stmt->bindValue(1, (int) $_GET["userid"], PDO::PARAM_INT);
+	$stmt->bindValue(1, (int) getParam("userid"), PDO::PARAM_INT);
 	$stmt->execute();
 	if ($row = $stmt->fetch()) {
 		mail(
@@ -79,7 +79,7 @@ else if ($action == "reject") {
 	}
 
 	$stmt = $smarty->dbh()->prepare("DELETE FROM {$opt["table_prefix"]}users WHERE userid = ?");
-	$stmt->bindValue(1, (int) $_GET["userid"], PDO::PARAM_INT);
+	$stmt->bindValue(1, (int) getParam("userid"), PDO::PARAM_INT);
 	$stmt->execute();
 	
 	header("Location: " . getFullPath("index.php"));

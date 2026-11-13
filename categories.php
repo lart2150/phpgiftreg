@@ -33,15 +33,17 @@ else {
 
 // state-changing requests must carry the per-session CSRF token.
 requireCsrfForAction(array("edit"));
+
+$haserror = false;
 if (!empty($_GET["message"])) {
     $message = $_GET["message"];
 }
 
-$action = $_GET["action"];
+$action = getParam("action");
 
 if ($action == "insert" || $action == "update") {
 	/* validate the data. */
-	$category = trim($_GET["category"]);
+	$category = trim(getParam("category"));
 		
 	$haserror = false;
 	if ($category == "") {
@@ -53,11 +55,11 @@ if ($action == "insert" || $action == "update") {
 if ($action == "delete") {
 	/* first, NULL all category FKs for items that use this category. */
 	$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}items SET category = NULL WHERE category = ?");
-	$stmt->bindValue(1, (int) $_GET["categoryid"], PDO::PARAM_INT);
+	$stmt->bindValue(1, (int) getParam("categoryid"), PDO::PARAM_INT);
 	$stmt->execute();
 
 	$stmt = $smarty->dbh()->prepare("DELETE FROM {$opt["table_prefix"]}categories WHERE categoryid = ?");
-	$stmt->bindValue(1, (int) $_GET["categoryid"], PDO::PARAM_INT);
+	$stmt->bindValue(1, (int) getParam("categoryid"), PDO::PARAM_INT);
 	$stmt->execute();
 	
 	header("Location: " . getFullPath("categories.php?message=Category+deleted."));
@@ -65,7 +67,7 @@ if ($action == "delete") {
 }
 else if ($action == "edit") {
 	$stmt = $smarty->dbh()->prepare("SELECT category FROM {$opt["table_prefix"]}categories WHERE categoryid = ?");
-	$stmt->bindValue(1, (int) $_GET["categoryid"], PDO::PARAM_INT);
+	$stmt->bindValue(1, (int) getParam("categoryid"), PDO::PARAM_INT);
 	$stmt->execute();
 	if ($row = $stmt->fetch()) {
 		$category = $row["category"];
@@ -90,7 +92,7 @@ else if ($action == "update") {
 					"SET category = ? " .
 					"WHERE categoryid = ?");
 		$stmt->bindParam(1, $category, PDO::PARAM_STR);
-		$stmt->bindValue(2, (int) $_GET["categoryid"], PDO::PARAM_INT);
+		$stmt->bindValue(2, (int) getParam("categoryid"), PDO::PARAM_INT);
 		$stmt->execute();
 		
 		header("Location: " . getFullPath("categories.php?message=Category+updated."));

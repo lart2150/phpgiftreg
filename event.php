@@ -30,6 +30,8 @@ else {
 // state-changing requests must carry the per-session CSRF token.
 requireCsrfForAction(array("edit"));
 
+$haserror = false;
+
 if (!empty($_GET["message"])) {
     $message = $_GET["message"];
 }
@@ -65,14 +67,14 @@ $action = isset($_GET["action"]) ? $_GET["action"] : "";
 
 if ($action == "insert" || $action == "update") {
 	/* validate the data. */
-	$description = trim($_GET["description"]);
+	$description = trim(getParam("description"));
 	try {
-		$eventdate = new DateTime($_GET["eventdate"]);
+		$eventdate = new DateTime(getParam("eventdate"));
 	}
 	catch (Exception $e) {
 		$eventdate = FALSE;
 	}
-	$recurring = (strtoupper($_GET["recurring"]) == "ON" ? 1 : 0);
+	$recurring = (strtoupper(getParam("recurring")) == "ON" ? 1 : 0);
 	// only admins may create/edit system (everyone's) events.
 	$systemevent = ($_SESSION["admin"] == 1 && isset($_GET["systemevent"]) && strtoupper($_GET["systemevent"]) == "ON") ? 1 : 0;
 		
@@ -203,7 +205,8 @@ try {
 	$smarty->assign('action', $action);
 	$smarty->assign('haserror', $haserror);
 	$smarty->assign('events', $events);
-	$smarty->assign('eventdate', $eventdate->format($opt["date_format"]));
+	// on a bad date, redisplay what the user typed alongside the error.
+	$smarty->assign('eventdate', $eventdate instanceof DateTime ? $eventdate->format($opt["date_format"]) : getParam("eventdate"));
 	if (isset($eventdate_error)) {
 		$smarty->assign('eventdate_error', $eventdate_error);
 	}

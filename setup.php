@@ -36,11 +36,11 @@ else {
 
 if (isset($_POST["action"])) {
 	if ($_POST["action"] == "setup") {
-		$username = $_POST["username"];
-		$fullname = $_POST["fullname"];
-		$pwd = $_POST["pwd"];
-		$email = $_POST["email"];
-		$familyname = $_POST["familyname"];
+		$username = postParam("username");
+		$fullname = postParam("fullname");
+		$pwd = postParam("pwd");
+		$email = postParam("email");
+		$familyname = postParam("familyname");
 		if (trim($familyname) == "") {
 			$familyname = "Default family";
 		}
