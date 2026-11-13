@@ -13,79 +13,55 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Forgot Password</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/jquery.validate.min.js"></script>
-	<script src="js/giftreg.js"></script>
+{block name=title}Forgot Password{/block}
+{block name=bodyclass}auth-body{/block}
+{block name=navbar}{/block}
+{block name=main}auth-wrap{/block}
+{block name=flash}{/block}
 
-	<script language="JavaScript" type="text/javascript">
-		$(document).ready(function() {
+{block name=content}
+	<div class="auth-brand">
+		<i class="bi bi-gift-fill"></i>
+		<h1>Gift Registry</h1>
+	</div>
+	<div class="card gr-card">
+		<div class="card-body p-4">
+			{if isset($action) && $action == "forgot" && $error == ""}
+				<h2 class="h4"><i class="bi bi-envelope-check text-evergreen me-1"></i> Check your e-mail</h2>
+				<p>If that username has an e-mail address on file, you'll shortly receive an e-mail with a link to choose a new password. The link works for one hour.</p>
+				<p class="mb-0">Your current password still works until you choose a new one.</p>
+				<a class="btn btn-primary mt-3" href="login.php">Back to login</a>
+			{else}
+				<h2 class="h4 mb-2">Reset your password</h2>
+				<p class="gr-subtle small">Supply your username and we'll e-mail a link to choose a new password to the address on your account.</p>
+				<form name="forgotform" id="forgotform" method="post" action="forgot.php">
+					<input type="hidden" name="action" value="forgot">
+					<div class="mb-3">
+						<label class="form-label" for="username">Username</label>
+						<input id="username" name="username" type="text" class="form-control {if isset($error) && $error != ''}is-invalid{/if}" value="{$username}" autocomplete="username" autocapitalize="none">
+						{if isset($error) && $error != ''}
+							<div class="invalid-feedback">{$error}</div>
+						{/if}
+					</div>
+					<div class="d-flex gap-2 mt-4">
+						<button type="submit" class="btn btn-primary">Submit</button>
+						<a class="btn btn-outline-secondary" href="login.php">Cancel</a>
+					</div>
+				</form>
+			{/if}
+		</div>
+	</div>
+{/block}
+
+{block name=scripts}
+	<script>
+		$(function() {
 			$("#forgotform").validate({
-				highlight: validate_highlight,
-				success: validate_success,
-				rules: {
-					username: {
-						required: true
-					},
-				},
-				messages: {
-					username: {
-						required: "Username is required."
-					}
-				}
+				rules: { username: { required: true } },
+				messages: { username: { required: "Username is required." } }
 			});
 		});
 	</script>
-</head>
-<body>
-	<div class="container" style="padding-top: 30px;">
-
-	{if isset($action) && $action == "forgot" && $error == ""}
-		<div class="row">
-			<div class="span12">
-				<div class="well">
-					<p>If that username has an e-mail address on file, you'll shortly receive an e-mail with a link to choose a new password.  The link works for one hour.</p>
-					<p>Your current password still works until you choose a new one.  <a href="login.php">Back to login</a></p>
-				</div>
-			</div>
-		</div>
-	{else}
-		<div class="row">
-			<div class="span12">
-				<form name="forgotform" id="forgotform" method="post" action="forgot.php" class="well form-horizontal">	
-					<input type="hidden" name="action" value="forgot">
-					<fieldset>
-						<legend>Reset Your Password</legend>
-						<div class="control-group {if isset($error)}warning{/if}">
-							<label class="control-label" for="username">Username</label>
-							<div class="controls">
-								<input id="username" name="username" type="text" class="input-xlarge" value="{$username}">
-								{if isset($error)}
-									<span class="help-inline">{$error}</span>
-								{/if}
-								<p class="help-block">
-									Supply your username and click Submit.<br />
-									We'll e-mail a link to choose a new password to the address on your account.
-								</p>
-							</p>
-						</div>
-						<div class="form-actions">
-							<button type="submit" class="btn btn-primary">Submit</button>
-							<button type="button" class="btn" onClick="document.location.href='login.php';">Cancel</button>
-						</div>
-					</fieldset>
-				</form>
-			</div>
-		</div>
-	{/if}
-	</div>
-</body>
-</html>
+{/block}

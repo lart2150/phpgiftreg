@@ -13,29 +13,89 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Manage Categories</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/jquery.validate.min.js"></script>
-	<script src="js/giftreg.js"></script>
+{block name=title}Manage Categories{/block}
 
-	<script language="JavaScript" type="text/javascript">
-		$(document).ready(function() {
-			$("#categoryform").validate({
-				highlight: validate_highlight,
-				success: validate_success,
+{block name=content}
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+		<h1 class="page-title me-auto">Categories</h1>
+		<a class="btn btn-sm btn-primary" href="categories.php#catform"><i class="bi bi-plus-lg"></i> Add category</a>
+	</div>
+
+	{if $opt.show_helptext}
+		<details class="gr-tips mb-4">
+			<summary><i class="bi bi-lightbulb me-1"></i> Tips</summary>
+			<p class="small mb-1">
+				Here you can specify categories <strong>of your own</strong>, like &quot;Motorcycle stuff&quot; or &quot;Collectibles&quot;. This will help you categorize your gifts.
+				Warning: deleting a category will uncategorize all items that used that category.
+			</p>
+		</details>
+	{/if}
+
+	<div class="row g-4">
+		<div class="col-lg-7">
+			<section class="card gr-card stack-host">
+				<div class="card-body p-0 p-md-2">
+					<table class="table gr-table table-hover table-stack">
+						<thead>
+							<tr>
+								<th>Category</th>
+								<th># Items</th>
+								<th><span class="visually-hidden">Actions</span></th>
+							</tr>
+						</thead>
+						<tbody>
+							{foreach from=$categories item=row}
+								<tr>
+									<td class="cell-title">{$row.category}</td>
+									<td data-label="Items">{$row.itemsin}</td>
+									<td class="cell-actions">
+										<a class="btn btn-icon btn-sm btn-outline-secondary" href="categories.php?csrf={$csrf}&action=edit&categoryid={$row.categoryid}#catform" title="Edit Category"><i class="bi bi-pencil"></i><span class="act-label">Edit</span></a>
+										<a class="btn btn-icon btn-sm btn-outline-danger" href="categories.php?csrf={$csrf}&action=delete&categoryid={$row.categoryid}" title="Delete Category" data-confirm="Delete the category &quot;{$row.category}&quot;? Items in it will become uncategorized."><i class="bi bi-trash"></i><span class="act-label">Delete</span></a>
+									</td>
+								</tr>
+							{foreachelse}
+								<tr class="row-empty"><td colspan="3" class="cell-empty gr-empty"><i class="bi bi-tags"></i>No categories yet.</td></tr>
+							{/foreach}
+						</tbody>
+					</table>
+				</div>
+			</section>
+		</div>
+
+		<div class="col-lg-5">
+			<form name="categoryform" id="catform" method="get" action="categories.php" class="card gr-card">
+				<input type="hidden" name="csrf" value="{$csrf}">
+				{if $action == "edit" || (isset($haserror) && $action == "update")}
+					<input type="hidden" name="categoryid" value="{$categoryid}">
+					<input type="hidden" name="action" value="update">
+				{elseif $action == "" || (isset($haserror) && $action == "insert")}
+					<input type="hidden" name="action" value="insert">
+				{/if}
+				<div class="card-header">
+					<h2 class="card-title"><i class="bi bi-tag"></i>{if $action == "edit"}Edit Category '{$category}'{else}Add Category{/if}</h2>
+				</div>
+				<div class="card-body">
+					<label class="form-label" for="category">Category name</label>
+					<input id="category" name="category" type="text" class="form-control {if isset($category_error)}is-invalid{/if}" value="{$category}" maxlength="255">
+					{if isset($category_error)}<div class="invalid-feedback">{$category_error}</div>{/if}
+				</div>
+				<div class="card-footer bg-transparent d-flex gap-2">
+					<button type="submit" class="btn btn-primary">{if $action == "" || $action == "insert"}Add{else}Update{/if}</button>
+					<a class="btn btn-outline-secondary" href="categories.php">Cancel</a>
+				</div>
+			</form>
+		</div>
+	</div>
+{/block}
+
+{block name=scripts}
+	<script>
+		$(function() {
+			$("#catform").validate({
 				rules: {
-					category: {
-						required: true,
-						maxlength: 50
-					}
+					category: { required: true, maxlength: 50 }
 				},
 				messages: {
 					category: {
@@ -46,91 +106,4 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 			});
 		});
 	</script>
-</head>
-<body>
-	{include file='navbar.tpl' isadmin=$isadmin}
-
-	<div class="container" style="padding-top: 60px;">
-
-		{if isset($message)}
-			<div class="row">
-				<div class="span12">
-					<div class="alert alert-block">{$message}</div>
-				</div>
-			</div>
-		{/if}
-
-		{if $opt.show_helptext}
-			<div class="row">
-				<div class="span12">
-					<div class="alert alert-info">
-						Here you can specify categories <strong>of your own</strong>, like &quot;Motorcycle stuff&quot; or &quot;Collectibles&quot;.  This will help you categorize your gifts.
-						Warning: deleting a category will uncategorize all items that used that category.
-					</div>
-				</div>
-			</div>
-		{/if}
-
-		<div class="row">
-			<div class="span12">
-				<div class="well">
-					<h3>Categories</h3>
-					<table class="table table-bordered table-striped">
-						<thead>
-							<tr>
-								<th>Category</th>
-								<th># Items</th>
-								<th>&nbsp;</th>
-							</tr>
-						</thead>
-						<tbody>
-							{foreach from=$categories item=row}
-								<tr>
-									<td>{$row.category}</td>
-									<td>{$row.itemsin}</td>
-									<td>
-										<a href="categories.php?csrf={$csrf}&action=edit&categoryid={$row.categoryid}#catform"><img src="images/pencil.png" border="0" title="Edit Category" alt="Edit Category" /></a>
-										<a href="categories.php?csrf={$csrf}&action=delete&categoryid={$row.categoryid}"><img src="images/bin.png" border="0" title="Delete Category" alt="Delete Category" /></a>
-									</td>
-								</tr>
-							{/foreach}
-						</tbody>
-					</table>
-					<h5><a href="categories.php#catform">Add a new category</a></h5>
-				</div>
-			</div>
-		</div>
-
-		<a name="catform">
-		<div class="row">
-			<div class="span12">
-				<form name="categoryform" id="categoryform" method="get" action="categories.php" class="well form-horizontal">
-					<input type="hidden" name="csrf" value="{$csrf}">
-					{if $action == "edit" || (isset($haserror) && $action == "update")}
-						<input type="hidden" name="categoryid" value="{$categoryid}">
-						<input type="hidden" name="action" value="update">
-					{elseif $action == "" || (isset($haserror) && $action == "insert")}
-						<input type="hidden" name="action" value="insert">
-					{/if}
-					<fieldset>
-						<legend>{if $action == "edit"}Edit Category '{$category}'{else}Add Category{/if}</legend>
-						<div class="control-group {if isset($category_error)}warning{/if}">
-							<label class="control-label" for="category">Category name</label>
-							<div class="controls">
-								<input id="category" name="category" type="text" class="input-xlarge" value="{$category}" maxlength="255">
-								{if isset($category_error)}
-									<span class="help-inline">{$category_error}</span>
-								{/if}
-							</div>
-						</div>
-						<div class="form-actions">
-							<button type="submit" class="btn btn-primary">{if $action == "" || $action == "insert"}Add{else}Update{/if}</button>
-							<button type="button" class="btn" onClick="document.location.href='categories.php';">Cancel</button>
-						</div>
-					</fieldset>
-				</form>
-			</div>
-		</div>
-	</div>
-</body>
-</html>
+{/block}

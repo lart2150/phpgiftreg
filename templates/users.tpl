@@ -13,45 +13,116 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Manage Users</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/jquery.validate.min.js"></script>
-	<script src="js/giftreg.js"></script>
-	
-	<script language="JavaScript" type="text/javascript">
-		$(document).ready(function() {
-			$('a[rel=confirmdeleteuser]').click(function(event) {
-				var u = $(this).attr('data-content');
-				if (!window.confirm('Are you sure you want to delete ' + u + '?')) {
-					event.preventDefault();
-				}
-			});
+{block name=title}Manage Users{/block}
 
-			$("#theform").validate({
-				highlight: validate_highlight,
-				success: validate_success,
+{block name=content}
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+		<h1 class="page-title me-auto">Users</h1>
+		<a class="btn btn-sm btn-primary" href="users.php#userform"><i class="bi bi-person-plus"></i> Add user</a>
+	</div>
+
+	<section class="card gr-card stack-host mb-4">
+		<div class="card-body p-0 p-md-2">
+			<table class="table gr-table table-hover table-stack">
+				<thead>
+					<tr>
+						<th>Full name</th>
+						<th>Username</th>
+						<th>E-mail</th>
+						<th>E-mail messages?</th>
+						<th>Approved?</th>
+						<th>Admin?</th>
+						<th><span class="visually-hidden">Actions</span></th>
+					</tr>
+				</thead>
+				<tbody>
+					{foreach from=$users item=row}
+						<tr>
+							<td class="cell-title">{$row.fullname}</td>
+							<td data-label="Username">{$row.username}</td>
+							<td data-label="E-mail" class="text-break">{$row.email}</td>
+							<td data-label="E-mail msgs">{if $row.email_msgs}Yes{else}No{/if}</td>
+							<td data-label="Approved">{if $row.approved}<span class="badge status-badge badge-evergreen">Yes</span>{else}<span class="badge status-badge text-bg-secondary">No</span>{/if}</td>
+							<td data-label="Admin">{if $row.admin}<span class="badge status-badge badge-accent">Admin</span>{else}No{/if}</td>
+							<td class="cell-actions">
+								<a class="btn btn-icon btn-sm btn-outline-secondary" href="users.php?csrf={$csrf}&action=edit&userid={$row.userid}#userform" title="Edit User"><i class="bi bi-pencil"></i><span class="act-label">Edit</span></a>
+								{if $row.email != ''}
+									<a class="btn btn-icon btn-sm btn-outline-secondary" href="users.php?csrf={$csrf}&action=reset&userid={$row.userid}" title="Reset Password"><i class="bi bi-key"></i><span class="act-label">Reset password</span></a>
+								{/if}
+								<a class="btn btn-icon btn-sm btn-outline-danger" href="users.php?csrf={$csrf}&action=delete&userid={$row.userid}" title="Delete User" data-confirm="Are you sure you want to delete {$row.fullname}?"><i class="bi bi-trash"></i><span class="act-label">Delete</span></a>
+							</td>
+						</tr>
+					{/foreach}
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<div class="row justify-content-center">
+		<div class="col-lg-8">
+			<form name="theform" id="userform" method="get" action="users.php" class="card gr-card">
+				<input type="hidden" name="csrf" value="{$csrf}">
+				{if $action == "edit" || (isset($haserror) && $action == "update")}
+					<input type="hidden" name="userid" value="{$edituserid}">
+					<input type="hidden" name="action" value="update">
+				{elseif $action == "" || (isset($haserror) && $action == "insert")}
+					<input type="hidden" name="action" value="insert">
+				{/if}
+				<div class="card-header">
+					<h2 class="card-title"><i class="bi bi-person-gear"></i>{if $action == "edit" || $action == "update"}Edit User{else}Add User{/if}</h2>
+				</div>
+				<div class="card-body">
+					<div class="row g-3">
+						<div class="col-md-6">
+							<label class="form-label" for="username">Username</label>
+							<input id="username" name="username" type="text" class="form-control {if isset($username_error)}is-invalid{/if}" value="{$username}" maxlength="255" autocapitalize="none">
+							{if isset($username_error)}<div class="invalid-feedback">{$username_error}</div>{/if}
+						</div>
+						<div class="col-md-6">
+							<label class="form-label" for="fullname">Full name</label>
+							<input id="fullname" name="fullname" type="text" class="form-control {if isset($fullname_error)}is-invalid{/if}" value="{$fullname}" maxlength="255">
+							{if isset($fullname_error)}<div class="invalid-feedback">{$fullname_error}</div>{/if}
+						</div>
+						<div class="col-12">
+							<label class="form-label" for="email">E-mail address</label>
+							<input id="email" name="email" type="email" class="form-control {if isset($email_error)}is-invalid{/if}" value="{$email}" maxlength="255">
+							{if isset($email_error)}<div class="invalid-feedback">{$email_error}</div>{/if}
+						</div>
+						<div class="col-12 d-flex flex-wrap gap-4">
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" role="switch" name="email_msgs" id="email_msgs" {if $email_msgs}checked{/if}>
+								<label class="form-check-label" for="email_msgs">E-mail messages</label>
+							</div>
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" role="switch" name="approved" id="approved" {if $approved}checked{/if}>
+								<label class="form-check-label" for="approved">Approved</label>
+							</div>
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" role="switch" name="admin" id="admin" {if $userisadmin}checked{/if}>
+								<label class="form-check-label" for="admin">Administrator</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card-footer bg-transparent d-flex gap-2">
+					<button type="submit" class="btn btn-primary">{if $action == "" || $action == "insert"}Add{else}Update{/if}</button>
+					<a class="btn btn-outline-secondary" href="users.php">Cancel</a>
+				</div>
+			</form>
+		</div>
+	</div>
+{/block}
+
+{block name=scripts}
+	<script>
+		$(function() {
+			$("#userform").validate({
 				rules: {
-					username: {
-						required: true,
-						maxlength: 20
-					},
-					fullname: {
-						required: true,
-						maxlength: 50
-					},
-					email: {
-						required: true,
-						maxlength: 255,
-						email: true
-					}
+					username: { required: true, maxlength: 20 },
+					fullname: { required: true, maxlength: 50 },
+					email: { required: true, maxlength: 255, email: true }
 				},
 				messages: {
 					username: {
@@ -71,121 +142,4 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 			});
 		});
 	</script>
-</head>
-<body>
-	{include file='navbar.tpl' isadmin=$isadmin}
-
-	<div class="container" style="padding-top: 60px;">
-		
-		{if isset($message)}
-			<div class="row">
-				<div class="span12">
-    				<div class="alert alert-block">{$message}</div>
-				</div>
-			</div>
-		{/if}
-
-		<div class="row">
-			<div class="span12">
-				<div class="well">
-					<table class="table table-bordered table-striped">
-						<thead>
-							<tr>
-								<th>Username</th>
-								<th>Fullname</th>
-								<th>E-mail</th>
-								<th>E-mail messages?</th>
-								<th>Approved?</th>
-								<th>Admin?</th>
-								<th>&nbsp;</th>
-							</tr>
-						</thead>
-						<tbody>
-							{foreach from=$users item=row}
-								<tr>
-									<td>{$row.username}</td>
-									<td>{$row.fullname}</td>
-									<td>{$row.email}</td>
-									<td>{if $row.email_msgs}Yes{else}No{/if}</td>
-									<td>{if $row.approved}Yes{else}No{/if}</td>
-									<td>{if $row.admin}Yes{else}No{/if}</td>
-									<td align="right">
-										<a href="users.php?csrf={$csrf}&action=edit&userid={$row.userid}#userform"><img alt="Edit User" src="images/pencil.png" border="0" title="Edit User" /></a>
-										<a rel="confirmdeleteuser" data-content="{$row.fullname}" href="users.php?csrf={$csrf}&action=delete&userid={$row.userid}"><img alt="Delete User" src="images/bin.png" border="0" title="Delete User" /></a>
-										{if $row.email != ''}
-											<a href="users.php?csrf={$csrf}&action=reset&userid={$row.userid}"><img alt="Reset Password" src="images/key.png" border="0" title="Reset Password" /></a>
-										{else}
-											Reset Pwd
-										{/if}
-									</td>
-								</tr>
-							{/foreach}
-						</tbody>
-					</table>
-					<h5><a href="users.php">Add a new user</a></h5>
-				</div>
-			</div>
-		</div>
-
-		<a name="userform">
-		<div class="row">
-			<div class="span12">
-				<form name="theform" id="theform" method="get" action="users.php" class="well form-horizontal">
-					<input type="hidden" name="csrf" value="{$csrf}">	
-					{if $action == "edit" || (isset($haserror) && $action == "update")}
-						<input type="hidden" name="userid" value="{$edituserid}">
-						<input type="hidden" name="action" value="update">
-					{else if $action == "" || (isset($haserror) && $action == "insert")}
-						<input type="hidden" name="action" value="insert">
-					{/if}
-					<fieldset>
-						<legend>{if $action == "edit" || $action == "update"}Edit User{else}Add User{/if}</legend>
-						<div class="control-group {if isset($username_error)}warning{/if}">
-							<label class="control-label" for="username">Username</label>
-							<div class="controls">
-								<input id="username" name="username" type="text" class="input-xlarge" value="{$username}" maxlength="255">
-								{if isset($username_error)}
-									<span class="help-inline">{$username_error}</span>
-								{/if}
-							</div>
-						</div>
-						<div class="control-group {if isset($fullname_error)}warning{/if}">
-							<label class="control-label" for="fullname">Full name</label>
-							<div class="controls">
-								<input id="fullname" name="fullname" type="text" class="input-xlarge" value="{$fullname}" maxlength="255">
-								{if isset($fullname_error)}
-									<span class="help-inline">{$fullname_error}</span>
-								{/if}
-							</div>
-						</div>
-						<div class="control-group {if isset($email_error)}warning{/if}">
-							<label class="control-label" for="email">E-mail address</label>
-							<div class="controls">
-								<input id="email" name="email" type="text" class="input-xlarge" value="{$email}" maxlength="255">
-								{if isset($email_error)}
-									<span class="help-inline">{$email_error}</span>
-								{/if}
-							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label">Flags</label>
-							<div class="controls">
-								<input type="checkbox" name="email_msgs" {if $email_msgs}CHECKED{/if}>
-								E-mail messages
-								<input type="checkbox" name="approved" {if $approved}CHECKED{/if}>
-								Approved
-								<input type="checkbox" name="admin" {if $userisadmin}CHECKED{/if}>
-								Administrator
-							</div>
-						</div>
-						<div class="form-actions">
-							<button type="submit" class="btn btn-primary">{if $action == "" || $action == "insert"}Add{else}Update{/if}</button>
-							<button type="button" class="btn" onClick="document.location.href='users.php';">Cancel</button>
-						</div>
-					</fieldset>
-				</form>
-			</div>
-		</div>
-	</div>
-</body>
-</html>
+{/block}

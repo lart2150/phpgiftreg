@@ -1,6 +1,5 @@
 {*
 This program is free software; you can redistribute it and/or modify
-This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
@@ -14,34 +13,78 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Update Profile</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/jquery.validate.min.js"></script>
-	<script src="js/giftreg.js"></script>
+{block name=title}Update Profile{/block}
 
-	<script language="JavaScript" type="text/javascript">
-		$(document).ready(function() {
+{block name=content}
+	<h1 class="page-title mb-3">Profile</h1>
+	<div class="row g-4">
+		<div class="col-lg-7">
+			<form name="profileform" id="profileform" action="profile.php" method="POST" class="card gr-card">
+				<input type="hidden" name="csrf" value="{$csrf}">
+				<input type="hidden" name="action" value="save">
+				<div class="card-header">
+					<h2 class="card-title"><i class="bi bi-person-circle"></i>Update Profile</h2>
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label class="form-label" for="fullname">Full name</label>
+						<input type="text" id="fullname" name="fullname" class="form-control" value="{$fullname}" autocomplete="name">
+					</div>
+					<div class="mb-3">
+						<label class="form-label" for="email">E-mail address</label>
+						<input type="email" id="email" name="email" class="form-control" value="{$email}" autocomplete="email">
+					</div>
+					<div class="form-check form-switch mb-3">
+						<input class="form-check-input" type="checkbox" role="switch" id="email_msgs" name="email_msgs" {if $email_msgs}checked{/if}>
+						<label class="form-check-label" for="email_msgs">E-mail me a copy of every message</label>
+					</div>
+					<div>
+						<label class="form-label" for="comment">Comments / shipping address / etc. <span class="gr-subtle">(optional)</span></label>
+						<textarea id="comment" name="comment" rows="4" class="form-control">{$comment}</textarea>
+					</div>
+				</div>
+				<div class="card-footer bg-transparent d-flex gap-2">
+					<button type="submit" class="btn btn-primary">Update Profile</button>
+					<a class="btn btn-outline-secondary" href="index.php">Cancel</a>
+				</div>
+			</form>
+		</div>
+
+		<div class="col-lg-5">
+			<form name="changepwdform" id="changepwdform" action="profile.php" method="POST" class="card gr-card">
+				<input type="hidden" name="csrf" value="{$csrf}">
+				<input type="hidden" name="action" value="changepwd">
+				<div class="card-header">
+					<h2 class="card-title"><i class="bi bi-key"></i>Change Password</h2>
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label class="form-label" for="newpwd">New password</label>
+						<input type="password" id="newpwd" name="newpwd" class="form-control" autocomplete="new-password">
+					</div>
+					<div>
+						<label class="form-label" for="confpwd">Confirm password</label>
+						<input type="password" id="confpwd" name="confpwd" class="form-control" autocomplete="new-password">
+					</div>
+				</div>
+				<div class="card-footer bg-transparent d-flex gap-2">
+					<button type="submit" class="btn btn-primary">Change Password</button>
+					<a class="btn btn-outline-secondary" href="index.php">Cancel</a>
+				</div>
+			</form>
+		</div>
+	</div>
+{/block}
+
+{block name=scripts}
+	<script>
+		$(function() {
 			$("#changepwdform").validate({
-				highlight: validate_highlight,
-				success: validate_success,
 				rules: {
-					newpwd: {
-						required: true,
-						maxlength: 50
-					},
-					confpwd: {
-						required: true,
-						maxlength: 50,
-						equalTo: "#newpwd"
-					}
+					newpwd: { required: true, maxlength: 50 },
+					confpwd: { required: true, maxlength: 50, equalTo: "#newpwd" }
 				},
 				messages: {
 					newpwd: {
@@ -56,18 +99,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 				}
 			});
 			$("#profileform").validate({
-				highlight: validate_highlight,
-				success: validate_success,
 				rules: {
-					fullname: {
-						required: true,
-						maxlength: 50
-					},
-					email: {
-						required: true,
-						maxlength: 255,
-						email: true
-					}
+					fullname: { required: true, maxlength: 50 },
+					email: { required: true, maxlength: 255, email: true }
 				},
 				messages: {
 					fullname: {
@@ -83,78 +117,4 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 			});
 		});
 	</script>
-	</head>
-<body>
-	{include file='navbar.tpl' isadmin=$isadmin}
-
-	<div class="container" style="padding-top: 60px;">
-		<div class="row">
-			<div class="span8 offset2">
-<form name="changepwdform" id="changepwdform" action="profile.php" method="POST" class="well form-horizontal">
-	<input type="hidden" name="csrf" value="{$csrf}">
-	<input type="hidden" name="action" value="changepwd">
-	<fieldset>
-		<legend>Change Password</legend>
-		<div class="control-group">
-			<label class="control-label" for="newpwd">New password</label>
-			<div class="controls">
-				<input type="password" id="newpwd" name="newpwd" class="input-xlarge">
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="confpwd">Confirm password</label>
-			<div class="controls">
-				<input type="password" id="confpwd" name="confpwd" class="input-xlarge">
-			</div>
-		</div>
-		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">Change Password</button>
-			<button type="button" class="btn" onclick="document.location.href='index.php';">Cancel</button>
-		</div>
-	</fieldset>
-</form>
-			</div>
-		</div>
-		<div class="row">
-			<div class="span8 offset2">
-<form name="profileform" id="profileform" action="profile.php" method="POST" class="well form-horizontal">
-	<input type="hidden" name="csrf" value="{$csrf}">
-	<input type="hidden" name="action" value="save">
-	<fieldset>
-		<legend>Update Profile</legend>
-		<div class="control-group">
-			<label class="control-label" for="fullname">Full name</label>
-			<div class="controls">
-				<input type="text" id="fullname" name="fullname" class="input-xlarge" value="{$fullname}">
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="email">E-mail address</label>
-			<div class="controls">
-				<input type="text" id="email" name="email" class="input-xlarge" value="{$email}">
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="email_msgs">Copy on msg</label>
-			<div class="controls">
-				<input type="checkbox" id="email_msgs" name="email_msgs" {if $email_msgs}CHECKED{/if}>
-				E-mail me a copy of every message
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="comment">Comments / shipping address / etc. (optional)</label>
-			<div class="controls">
-				<textarea id="comment" name="comment" rows="5" cols="40">{$comment}</textarea>
-			</div>
-		</div>
-		<div class="form-actions">
-			<button type="submit" class="btn btn-primary">Update Profile</button>
-			<button type="button" class="btn" onclick="document.location.href='index.php';">Cancel</button>
-		</div>
-	</fieldset>
-</form>
-		</div>
-	</div>
-</div>
-</body>
-</html>
+{/block}

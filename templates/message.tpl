@@ -13,52 +13,42 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Compose a Message</title>
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-</head>
-<body>
-	{include file='navbar.tpl' isadmin=$isadmin}
-	
-	<div class="container" style="padding-top: 60px;">
-		<div class="row">
-			<div class="span12">
-				<form name="message" method="get" action="message.php" class="well form-horizontal">
-					<input type="hidden" name="csrf" value="{$csrf}">
-					<input type="hidden" name="action" value="send">
-					<fieldset>
-						<legend>Send a message</legend>
-						<div class="control-group">
-							<label class="control-label" for="recipients[]">Recipients</label>
-							<div class="controls">
-								<select name="recipients[]" size="{$rcount}" MULTIPLE class="input-xlarge">
-									{foreach from=$recipients item=row}
-										<option value="{$row.userid}">{$row.fullname}</option>
-									{/foreach}
-								</select>
-					 			<p class="help-block">(Hold CTRL while clicking to select multiple names.)</p>
+{block name=title}Compose a Message{/block}
+
+{block name=content}
+<div class="row justify-content-center">
+	<div class="col-lg-8 col-xl-7">
+		<h1 class="page-title mb-3">Send a message</h1>
+		<form name="message" method="get" action="message.php" class="card gr-card">
+			<input type="hidden" name="csrf" value="{$csrf}">
+			<input type="hidden" name="action" value="send">
+			<div class="card-body">
+				<fieldset class="mb-3">
+					<legend class="form-label fs-6 mb-2">Recipients</legend>
+					{* Checkboxes instead of a ctrl-click multi-select: usable on touch screens. *}
+					<div class="border rounded p-2" style="max-height: 16rem; overflow-y: auto;">
+						{foreach from=$recipients item=row}
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" name="recipients[]" value="{$row.userid}" id="recipient-{$row.userid}">
+								<label class="form-check-label" for="recipient-{$row.userid}">{$row.fullname}</label>
 							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label" for="msg">Message</label>
-							<div class="controls">
-								<textarea id="msg" name="msg" rows="5" cols="40" class="input-xlarge"></textarea>
-							</div>
-						</div>
-						<div class="form-actions">
-							<button type="submit" class="btn btn-primary">Send Message</button>
-							<button type="button" class="btn" onClick="document.location.href='index.php';">Cancel</button>
-						</div>
-					</fieldset>
-				</form>
+						{foreachelse}
+							<div class="gr-subtle small p-1">There's no one to send a message to yet.</div>
+						{/foreach}
+					</div>
+				</fieldset>
+				<div>
+					<label class="form-label" for="msg">Message</label>
+					<textarea id="msg" name="msg" rows="5" class="form-control"></textarea>
+				</div>
 			</div>
-		</div>
+			<div class="card-footer bg-transparent d-flex gap-2">
+				<button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Send Message</button>
+				<a class="btn btn-outline-secondary" href="index.php">Cancel</a>
+			</div>
+		</form>
 	</div>
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-</body>
-</html>
+</div>
+{/block}

@@ -13,41 +13,94 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Sign Up</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/jquery.validate.min.js"></script>
-	<script src="js/giftreg.js"></script>
+{block name=title}Sign Up{/block}
+{block name=bodyclass}auth-body{/block}
+{block name=navbar}{/block}
+{block name=main}auth-wrap wide{/block}
+{block name=flash}{/block}
 
-	<script language="JavaScript" type="text/javascript">
-		$(document).ready(function() {
+{block name=content}
+	<div class="auth-brand">
+		<i class="bi bi-gift-fill"></i>
+		<h1>Gift Registry</h1>
+	</div>
+
+	{if isset($error)}
+		<div class="alert alert-danger">{$error}</div>
+	{/if}
+
+	{if isset($action) && $action == "signup" && !isset($error)}
+		<div class="card gr-card">
+			<div class="card-body p-4">
+				<h2 class="h4"><i class="bi bi-check-circle text-evergreen me-1"></i> Thank you for signing up</h2>
+				{if $opt.newuser_requires_approval}
+					<p>The administrators have been informed of your request and you will receive an e-mail once they've made a decision.</p>
+				{else}
+					<p>Shortly, you will receive an e-mail with your initial password.</p>
+				{/if}
+				<a class="btn btn-primary" href="login.php">Go to login</a>
+			</div>
+		</div>
+	{else}
+		<div class="card gr-card">
+			<div class="card-body p-4">
+				<h2 class="h4 mb-2">Sign up</h2>
+				<p class="gr-subtle small">
+					{if $opt.newuser_requires_approval}
+						The list administrators will be notified of your request by e-mail and will approve or decline it.
+						If the e-mail address you supply is valid, you will be notified once a decision is made.
+					{else}
+						If the e-mail address you supply is valid, you will shortly receive an e-mail with your initial password.
+					{/if}
+				</p>
+				<form name="signupform" id="signupform" method="post" action="signup.php">
+					<input type="hidden" name="action" value="signup">
+					<div class="mb-3">
+						<label class="form-label" for="username">Username</label>
+						<input id="username" name="username" type="text" class="form-control" value="{$username}" placeholder="Username" autocomplete="username" autocapitalize="none">
+					</div>
+					<div class="mb-3">
+						<label class="form-label" for="fullname">Full name</label>
+						<input id="fullname" name="fullname" type="text" class="form-control" value="{$fullname}" placeholder="Full name" autocomplete="name">
+					</div>
+					<div class="mb-3">
+						<label class="form-label" for="email">E-mail address</label>
+						<input id="email" name="email" type="email" class="form-control" value="{$email}" placeholder="you@somewhere.com" autocomplete="email">
+					</div>
+					{if $familycount > 1}
+						<div class="mb-3">
+							<label class="form-label" for="familyid">Family</label>
+							<select id="familyid" name="familyid" class="form-select">
+								<option value="">(select one)</option>
+								{foreach from=$families item=row}
+									<option value="{$row.familyid}">{$row.familyname}</option>
+								{/foreach}
+							</select>
+						</div>
+					{else}
+						<input type="hidden" name="familyid" value="{$familyid}">
+					{/if}
+					<div class="d-flex gap-2 mt-4">
+						<button type="submit" class="btn btn-primary">Submit</button>
+						<a class="btn btn-outline-secondary" href="login.php">Cancel</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	{/if}
+{/block}
+
+{block name=scripts}
+	<script>
+		$(function() {
 			$("#signupform").validate({
-				highlight: validate_highlight,
-				success: validate_success,
 				rules: {
-					username: {
-						required: true,
-						maxlength: 20
-					},
-					fullname: {
-						required: true,
-						maxlength: 50
-					},
-					email: {
-						required: true,
-						email: true,
-						maxlength: 255
-					},
-					familyid: {
-						required: true
-					}
+					username: { required: true, maxlength: 20 },
+					fullname: { required: true, maxlength: 50 },
+					email: { required: true, email: true, maxlength: 255 },
+					familyid: { required: true }
 				},
 				messages: {
 					username: {
@@ -56,7 +109,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 					},
 					fullname: {
 						required: "Your full name is required.",
-						maxlength: "Your full name must be 50 characteres or less."
+						maxlength: "Your full name must be 50 characters or less."
 					},
 					email: "A valid e-mail address is required.",
 					familyid: "Please select a family."
@@ -64,94 +117,4 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 			});
 		});
 	</script>
-</head>
-<body>
-	<div class="container" style="padding-top: 30px;">
-		{if isset($error)}
-			<div class="row">
-				<div class="span8 offset2">
-					<div class="alert alert-block">{$error}</div>
-				</div>
-			</div>
-		{/if}
-		{if isset($action) && $action == "signup" && !isset($error)}
-			<div class="row">
-				<div class="span8 offset2">
-					<div class="well">
-						<p>Thank you for signing up.</p>
-						{if $opt.newuser_requires_approval}
-							<p>The administrators have been informed of your request and you will receive an e-mail once they've made a decision.</p>
-						{else}
-							<p>Shortly, you will receive an e-mail with your initial password.</p>
-						{/if}
-						<p>Once you've received your password, click <a href="login.php">here</a> to login.</p>
-					</div>
-				</div>
-			</div>
-		{else}
-			<div class="row">
-				<div class="span8 offset2">
-					<div class="alert alert-info">
-						<p>Complete the form below and click Submit.</p>
-						{if $opt.newuser_requires_approval}
-							<p>The list administrators will be notified of your request by e-mail and will approve or decline your request.
-</p>
-							<p>If the e-mail address you supply is valid, you will be notified once a decision is made.</p>
-						{else}
-							<p>If the e-mail address you supply is valid, you will shortly receive an e-mail with your initial password.</p>
-						{/if}
-					</div>
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="span8 offset2">
-					<form name="signupform" id="signupform" method="post" action="signup.php" class="well form-horizontal">	
-						<input type="hidden" name="action" value="signup">
-						<fieldset>
-							<legend>Sign Up for the Gift Registry</legend>
-							<div class="control-group">
-								<label class="control-label" for="username">Username</label>
-								<div class="controls">
-									<input id="username" name="username" type="text" class="input-xlarge" value="{$username}" placeholder="Username">
-								</div>
-							</div>
-							<div class="control-group">
-								<label class="control-label" for="fullname">Full name</label>
-								<div class="controls">
-									<input id="fullname" name="fullname" type="text" class="input-xlarge" value="{$fullname}" placeholder="Full name">
-								</div>
-							</div>
-							<div class="control-group">
-								<label class="control-label" for="email">E-mail address</label>
-								<div class="controls">
-									<input id="email" name="email" type="text" class="input-xlarge" value="{$email}" placeholder="you@somewhere.com">
-								</div>
-							</div>
-							{if $familycount > 1}
-								<div class="control-group">
-									<label class="control-label" for="familyid">Family</label>
-									<div class="controls">
-										<select name="familyid">
-											<option value="">(select one)</option>
-											{foreach from=$families item=row}
-												<option value="{$row.familyid}">{$row.familyname}</option>
-											{/foreach}
-										</select>
-									</div>
-								</div>
-							{else}
-								<input type="hidden" name="familyid" value="{$familyid}">
-							{/if}
-							<div class="form-actions">
-								<button type="submit" class="btn btn-primary">Submit</button>
-								<button type="button" class="btn" onClick="document.location.href='login.php';">Cancel</button>
-							</div>
-						</fieldset>
-					</form>
-				</div>
-			</div>
-		{/if}
-	</div>
-</body>
-</html>
+{/block}

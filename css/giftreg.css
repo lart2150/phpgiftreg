@@ -1,0 +1,486 @@
+/*
+ * Gift Registry theme, layered on top of Bootstrap 5.3.
+ * Colors are CSS variables so light and dark mode stay in one place.
+ */
+
+:root,
+[data-bs-theme="light"] {
+	--gr-accent: #b3243b;
+	--gr-accent-rgb: 179, 36, 59;
+	--gr-accent-hover: #951c30;
+	--gr-accent-subtle: #fbe9ec;
+	--gr-evergreen: #1d6b4c;
+	--gr-evergreen-rgb: 29, 107, 76;
+	--gr-surface: #ffffff;
+	--gr-page: #f6f4f2;
+	--gr-shadow: 0 1px 2px rgba(30, 20, 20, .06), 0 2px 8px rgba(30, 20, 20, .05);
+
+	--bs-body-bg: var(--gr-page);
+	--bs-primary: var(--gr-accent);
+	--bs-primary-rgb: var(--gr-accent-rgb);
+	--bs-link-color: var(--gr-accent);
+	--bs-link-color-rgb: var(--gr-accent-rgb);
+	--bs-link-hover-color: var(--gr-accent-hover);
+	--bs-link-hover-color-rgb: 149, 28, 48;
+	--bs-focus-ring-color: rgba(var(--gr-accent-rgb), .25);
+	--bs-border-radius: .5rem;
+	--bs-border-radius-lg: .75rem;
+}
+
+[data-bs-theme="dark"] {
+	--gr-accent: #e8566d;
+	--gr-accent-rgb: 232, 86, 109;
+	--gr-accent-hover: #f07a8c;
+	--gr-accent-subtle: #3a1d23;
+	--gr-evergreen: #4fbf8f;
+	--gr-evergreen-rgb: 79, 191, 143;
+	--gr-surface: #1f2226;
+	--gr-page: #16181b;
+	--gr-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+
+	--bs-body-bg: var(--gr-page);
+	--bs-primary: var(--gr-accent);
+	--bs-primary-rgb: var(--gr-accent-rgb);
+	--bs-link-color: var(--gr-accent);
+	--bs-link-color-rgb: var(--gr-accent-rgb);
+	--bs-link-hover-color: var(--gr-accent-hover);
+	--bs-link-hover-color-rgb: 240, 122, 140;
+	--bs-focus-ring-color: rgba(var(--gr-accent-rgb), .3);
+}
+
+body {
+	background-color: var(--gr-page);
+	-webkit-font-smoothing: antialiased;
+}
+
+a { text-underline-offset: .2em; }
+
+/* ---------- Buttons & form focus in the accent color ---------- */
+
+.btn-primary {
+	--bs-btn-bg: var(--gr-accent);
+	--bs-btn-border-color: var(--gr-accent);
+	--bs-btn-hover-bg: var(--gr-accent-hover);
+	--bs-btn-hover-border-color: var(--gr-accent-hover);
+	--bs-btn-active-bg: var(--gr-accent-hover);
+	--bs-btn-active-border-color: var(--gr-accent-hover);
+	--bs-btn-disabled-bg: var(--gr-accent);
+	--bs-btn-disabled-border-color: var(--gr-accent);
+	--bs-btn-focus-shadow-rgb: var(--gr-accent-rgb);
+	--bs-btn-color: #fff;
+	--bs-btn-hover-color: #fff;
+	--bs-btn-active-color: #fff;
+}
+
+.btn-outline-primary {
+	--bs-btn-color: var(--gr-accent);
+	--bs-btn-border-color: var(--gr-accent);
+	--bs-btn-hover-bg: var(--gr-accent);
+	--bs-btn-hover-border-color: var(--gr-accent);
+	--bs-btn-active-bg: var(--gr-accent);
+	--bs-btn-active-border-color: var(--gr-accent);
+	--bs-btn-focus-shadow-rgb: var(--gr-accent-rgb);
+	--bs-btn-hover-color: #fff;
+	--bs-btn-active-color: #fff;
+}
+
+.btn-success {
+	--bs-btn-bg: var(--gr-evergreen);
+	--bs-btn-border-color: var(--gr-evergreen);
+	--bs-btn-hover-bg: var(--gr-evergreen);
+	--bs-btn-hover-border-color: var(--gr-evergreen);
+	--bs-btn-focus-shadow-rgb: var(--gr-evergreen-rgb);
+}
+
+.btn-outline-success {
+	--bs-btn-color: var(--gr-evergreen);
+	--bs-btn-border-color: var(--gr-evergreen);
+	--bs-btn-hover-bg: var(--gr-evergreen);
+	--bs-btn-hover-border-color: var(--gr-evergreen);
+	--bs-btn-active-bg: var(--gr-evergreen);
+	--bs-btn-active-border-color: var(--gr-evergreen);
+	--bs-btn-focus-shadow-rgb: var(--gr-evergreen-rgb);
+	--bs-btn-hover-color: #fff;
+	--bs-btn-active-color: #fff;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+	border-color: rgba(var(--gr-accent-rgb), .6);
+	box-shadow: 0 0 0 .25rem rgba(var(--gr-accent-rgb), .2);
+}
+
+.form-check-input:checked {
+	background-color: var(--gr-accent);
+	border-color: var(--gr-accent);
+}
+
+.text-accent { color: var(--gr-accent) !important; }
+.text-evergreen { color: var(--gr-evergreen) !important; }
+
+.pagination {
+	--bs-pagination-color: var(--gr-accent);
+	--bs-pagination-hover-color: var(--gr-accent-hover);
+	--bs-pagination-active-bg: var(--gr-accent);
+	--bs-pagination-active-border-color: var(--gr-accent);
+	--bs-pagination-focus-box-shadow: 0 0 0 .25rem rgba(var(--gr-accent-rgb), .2);
+}
+
+/* ---------- Navbar ---------- */
+
+.gr-navbar {
+	background-color: var(--gr-surface);
+	border-bottom: 1px solid var(--bs-border-color-translucent);
+	box-shadow: var(--gr-shadow);
+}
+
+.gr-navbar .navbar-brand {
+	font-weight: 700;
+	letter-spacing: -.01em;
+}
+
+.gr-navbar .navbar-brand .bi { color: var(--gr-accent); }
+
+.gr-navbar .nav-link {
+	border-radius: var(--bs-border-radius);
+	padding-left: .75rem !important;
+	padding-right: .75rem !important;
+}
+
+.gr-navbar .nav-link.active {
+	color: var(--gr-accent);
+	background-color: var(--gr-accent-subtle);
+	font-weight: 600;
+}
+
+.gr-navbar .nav-link { white-space: nowrap; }
+.gr-navbar .nav-link .bi { margin-right: .35rem; }
+
+/* 992-1199px: not enough room for every label, so the right-hand links go icon-only. */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+	.gr-navbar .nav-text {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+	}
+	.gr-navbar .nav-link:has(.nav-text) .bi { margin-right: 0; }
+}
+
+@media (max-width: 991.98px) {
+	.gr-navbar .navbar-collapse { padding: .5rem 0; }
+	.gr-navbar .nav-link { padding-top: .6rem; padding-bottom: .6rem; }
+}
+
+/* ---------- Cards & page headers ---------- */
+
+.gr-card {
+	background-color: var(--gr-surface);
+	border: 1px solid var(--bs-border-color-translucent);
+	border-radius: var(--bs-border-radius-lg);
+	box-shadow: var(--gr-shadow);
+}
+
+.gr-card > .card-header {
+	background: transparent;
+	border-bottom-color: var(--bs-border-color-translucent);
+	padding: 1rem 1.25rem;
+}
+
+.gr-card > .card-body { padding: 1.25rem; }
+
+.gr-card .card-title {
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin: 0;
+}
+
+.gr-card .card-title .bi { color: var(--gr-accent); margin-right: .4rem; }
+
+.page-title {
+	font-size: 1.6rem;
+	font-weight: 700;
+	letter-spacing: -.02em;
+	margin: 0;
+}
+
+.gr-subtle { color: var(--bs-secondary-color); }
+
+/* ---------- Tips (help text) ---------- */
+
+.gr-tips {
+	background-color: var(--gr-surface);
+	border: 1px solid var(--bs-border-color-translucent);
+	border-left: 4px solid var(--gr-evergreen);
+	border-radius: var(--bs-border-radius);
+	padding: .6rem 1rem;
+}
+
+.gr-tips summary {
+	cursor: pointer;
+	font-weight: 600;
+	color: var(--gr-evergreen);
+	list-style: none;
+}
+
+.gr-tips summary::-webkit-details-marker { display: none; }
+.gr-tips summary::after { content: " \25BE"; }
+.gr-tips[open] summary::after { content: " \25B4"; }
+.gr-tips[open] summary { margin-bottom: .5rem; }
+.gr-tips ul { margin-bottom: .25rem; padding-left: 1.25rem; }
+.gr-tips li + li { margin-top: .25rem; }
+
+/* ---------- Tables ---------- */
+
+.gr-table {
+	--bs-table-bg: transparent;
+	margin-bottom: 0;
+}
+
+.gr-table > thead th {
+	font-size: .8rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: var(--bs-secondary-color);
+	white-space: nowrap;
+	border-bottom-width: 1px;
+}
+
+.gr-table > thead th a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.gr-table > thead th a:hover { color: var(--gr-accent); }
+.gr-table > thead th a::after { content: " \2195"; opacity: .4; }
+.gr-table > tbody > tr:last-child > * { border-bottom: 0; }
+.gr-table td { vertical-align: middle; }
+
+.cell-actions { white-space: nowrap; text-align: right; }
+
+.cell-title { font-weight: 500; }
+
+.rank img { vertical-align: -2px; }
+
+/* Icon-only buttons on desktop; labels appear on phones where there is no hover. */
+.btn-icon {
+	--bs-btn-padding-x: .45rem;
+	--bs-btn-padding-y: .2rem;
+	line-height: 1.2;
+}
+
+.btn-icon + .btn-icon { margin-left: .15rem; }
+
+.status-badge {
+	font-weight: 500;
+	font-size: .8rem;
+}
+
+.badge-accent { background-color: var(--gr-accent-subtle); color: var(--gr-accent); }
+.badge-evergreen { background-color: rgba(var(--gr-evergreen-rgb), .14); color: var(--gr-evergreen); }
+
+/*
+ * Stacked tables: below 768px each row becomes a card. Cells label themselves
+ * from data-label, the title cell leads and the actions cell sits at the bottom.
+ * Screen-only so printing a list from a phone still prints a real table.
+ */
+@media screen and (max-width: 767.98px) {
+	.table-stack,
+	.table-stack > tbody,
+	.table-stack > tbody > tr,
+	.table-stack > tbody > tr > td {
+		display: block;
+		width: 100%;
+	}
+
+	.table-stack > thead { display: none; }
+
+	.table-stack > tbody > tr {
+		display: flex;
+		flex-direction: column;
+		background-color: var(--gr-surface);
+		border: 1px solid var(--bs-border-color-translucent);
+		border-radius: var(--bs-border-radius-lg);
+		box-shadow: var(--gr-shadow);
+		padding: .85rem 1rem;
+		margin-bottom: .75rem;
+	}
+
+	.table-stack > tbody > tr > td {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 1rem;
+		border: 0;
+		padding: .2rem 0;
+		text-align: right;
+		box-shadow: none;
+	}
+
+	.table-stack > tbody > tr > td[data-label]::before {
+		content: attr(data-label);
+		flex-shrink: 0;
+		font-size: .8rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: .04em;
+		color: var(--bs-secondary-color);
+		text-align: left;
+	}
+
+	.table-stack > tbody > tr > td.cell-title {
+		order: -1;
+		display: block;
+		text-align: left;
+		font-size: 1.05rem;
+		font-weight: 600;
+		padding-bottom: .4rem;
+	}
+
+	.table-stack > tbody > tr > td.cell-title::before { content: none; }
+
+	.table-stack > tbody > tr > td.cell-actions {
+		order: 99;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		gap: .4rem;
+		margin-top: .5rem;
+		padding-top: .65rem;
+		border-top: 1px solid var(--bs-border-color-translucent);
+	}
+
+	.table-stack > tbody > tr > td.cell-actions::before { content: none; }
+	.table-stack > tbody > tr > td.cell-actions:empty { display: none; }
+
+	.table-stack > tbody > tr > td.cell-empty {
+		display: block;
+		text-align: center;
+	}
+
+	.table-stack > tbody > tr.row-empty {
+		box-shadow: none;
+		background: transparent;
+		border-style: dashed;
+	}
+
+	.table-stack .btn-icon {
+		--bs-btn-padding-x: .7rem;
+		--bs-btn-padding-y: .4rem;
+		margin-left: 0;
+	}
+
+	.table-stack .act-label { margin-left: .3rem; }
+
+	/* Cards carry their own surface; drop the wrapping card chrome. */
+	.gr-card.stack-host {
+		background: transparent;
+		border: 0;
+		box-shadow: none;
+	}
+
+	.gr-card.stack-host > .card-header {
+		padding-left: 0;
+		padding-right: 0;
+		border-bottom: 0;
+	}
+
+	.gr-card.stack-host > .card-body,
+	.gr-card.stack-host > .card-footer {
+		padding-left: 0;
+		padding-right: 0;
+	}
+}
+
+@media (min-width: 768px) {
+	.act-label {
+		position: absolute !important;
+		width: 1px !important;
+		height: 1px !important;
+		padding: 0 !important;
+		margin: -1px !important;
+		overflow: hidden !important;
+		clip: rect(0, 0, 0, 0) !important;
+		white-space: nowrap !important;
+		border: 0 !important;
+	}
+}
+
+/* ---------- List groups on the dashboard ---------- */
+
+.gr-list .list-group-item {
+	background: transparent;
+	padding: .75rem 1.25rem;
+	border-color: var(--bs-border-color-translucent);
+}
+
+.gr-list .list-group-item:first-child { border-top: 0; }
+.gr-list .list-group-item:last-child { border-bottom: 0; }
+
+.gr-empty {
+	padding: 1.5rem 1.25rem;
+	text-align: center;
+	color: var(--bs-secondary-color);
+}
+
+.gr-empty .bi {
+	display: block;
+	font-size: 1.6rem;
+	margin-bottom: .35rem;
+	opacity: .6;
+}
+
+/* ---------- Auth pages ---------- */
+
+.auth-body {
+	min-height: 100vh;
+	background:
+		radial-gradient(circle at 15% 10%, rgba(var(--gr-accent-rgb), .10), transparent 45%),
+		radial-gradient(circle at 85% 90%, rgba(var(--gr-evergreen-rgb), .10), transparent 45%),
+		var(--gr-page);
+}
+
+.auth-wrap {
+	max-width: 440px;
+	margin: 0 auto;
+	padding: 3rem 1rem;
+}
+
+.auth-wrap.wide { max-width: 560px; }
+
+.auth-brand {
+	text-align: center;
+	margin-bottom: 1.5rem;
+}
+
+.auth-brand .bi {
+	font-size: 2.5rem;
+	color: var(--gr-accent);
+}
+
+.auth-brand h1 {
+	font-size: 1.75rem;
+	font-weight: 700;
+	letter-spacing: -.02em;
+	margin: .25rem 0 0;
+}
+
+/* ---------- Validation (jquery.validate + server-side) ---------- */
+
+/* Feedback is only rendered when there is an error, so always show it
+   (Bootstrap would otherwise hide it unless it directly follows .is-invalid). */
+.invalid-feedback { display: block; }
+
+/* ---------- Print ---------- */
+
+@media print {
+	body { background: #fff; }
+	.gr-card { box-shadow: none; border: 0; }
+	.gr-card > .card-body { padding: 0; }
+	.gr-tips { display: none; }
+	a { color: inherit; text-decoration: none; }
+	.gr-table > thead th a::after { content: none; }
+}

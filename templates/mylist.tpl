@@ -13,81 +13,58 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - My Items</title>
- 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+{block name=title}My Items{/block}
 
-	<script language="JavaScript">
-		function printPage() {
-			window.print();
-		}
-	</script>
-</head>
-<body>
-	 {include file='navbar.tpl' isadmin=$isadmin}
-
-	 <div class="container" style="padding-top: 60px;">
-	 	{if $opt.show_helptext}
-			<div class="row">
-				<div class="span12">
-					<div class="alert alert-info">
-						<ul>
-							<li>You can click the column headers to sort by that attribute.</li>
-							<li>Once you've bought or decided not to buy an item, remember to return to the recipient's gift lists and mark it accordingly.</li>
-							<li><strong>Please login to the Gift Registry site to get the most recent version of this list.</strong></li>
-							<li>For better printing results, please change your print orientation to "Landscape" mode.</li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		{/if}
-
-		<div class="row">
-			<div class="span12">
-				<div class="well">
-					<h1>My Items</h1>
-					<table class="table table-bordered table-striped">
-						<thead>
-							<tr>
-								<th><a href="mylist.php?sort=ranking">Ranking</a></th>
-								<th><a href="mylist.php?sort=source">Source</a></th>
-								<th><a href="mylist.php?sort=description">Description</a></th>
-								<th><a href="mylist.php?sort=category">Category</a></th>
-								<th><a href="mylist.php?sort=price">Price</a></th>
-							</tr>
-						</thead>
-						<tbody>
-							{foreach from=$shoplist item=row}
-								<tr>
-									<td>{$row.rendered nofilter}</td>
-									<td>{$row.source}</td>
-									<td>{$row.description}</td>
-									<td>{$row.category}</td>
-									<td>{$row.price nofilter}</td>
-								</tr>
-							{/foreach}
-						</tbody>
-					</table>
-					<h5>{$itemcount} item(s), {$totalprice nofilter} total.</h5>
-				</div>
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="span6">
-				<div class="well">
-					<a onClick="printPage()" href="#">Send to printer</a>
-				</div>
-			</div>
-		</div>
+{block name=content}
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+		<h1 class="page-title me-auto">My Items</h1>
+		{include file='sortmenu.tpl' url='mylist.php?sort=' options=['ranking' => 'Ranking', 'source' => 'Source', 'description' => 'Description', 'category' => 'Category', 'price' => 'Price']}
+		<button type="button" class="btn btn-sm btn-primary d-print-none" data-print><i class="bi bi-printer"></i> Print</button>
 	</div>
 
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-</body>
-</html>
+	{if $opt.show_helptext}
+		<details class="gr-tips mb-4">
+			<summary><i class="bi bi-lightbulb me-1"></i> Tips</summary>
+			<ul class="small">
+				<li>You can click the column headers to sort by that attribute.</li>
+				<li>Once you've bought or decided not to buy an item, remember to return to the recipient's gift lists and mark it accordingly.</li>
+				<li><strong>Please login to the Gift Registry site to get the most recent version of this list.</strong></li>
+				<li>For better printing results, please change your print orientation to "Landscape" mode.</li>
+			</ul>
+		</details>
+	{/if}
+
+	<section class="card gr-card stack-host">
+		<div class="card-body p-0 p-md-2">
+			<table class="table gr-table table-stack">
+				<thead>
+					<tr>
+						<th><a href="mylist.php?sort=ranking">Ranking</a></th>
+						<th><a href="mylist.php?sort=source">Source</a></th>
+						<th><a href="mylist.php?sort=description">Description</a></th>
+						<th><a href="mylist.php?sort=category">Category</a></th>
+						<th class="text-end"><a href="mylist.php?sort=price">Price</a></th>
+					</tr>
+				</thead>
+				<tbody>
+					{foreach from=$shoplist item=row}
+						<tr>
+							<td data-label="Ranking" class="rank text-nowrap"><span>{$row.rendered nofilter}</span></td>
+							<td data-label="Source">{$row.source}</td>
+							<td class="cell-title">{$row.description}</td>
+							<td data-label="Category">{$row.category}</td>
+							<td data-label="Price" class="text-end">{$row.price nofilter}</td>
+						</tr>
+					{foreachelse}
+						<tr class="row-empty"><td colspan="5" class="cell-empty gr-empty"><i class="bi bi-gift"></i>Your list is empty.</td></tr>
+					{/foreach}
+				</tbody>
+			</table>
+		</div>
+		<div class="card-footer bg-transparent fw-semibold">
+			{$itemcount} item(s), {$totalprice nofilter} total.
+		</div>
+	</section>
+{/block}

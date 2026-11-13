@@ -13,37 +13,64 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Choose a New Password</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/jquery.validate.min.js"></script>
-	<script src="js/giftreg.js"></script>
+{block name=title}Choose a New Password{/block}
+{block name=bodyclass}auth-body{/block}
+{block name=navbar}{/block}
+{block name=main}auth-wrap{/block}
+{block name=flash}{/block}
 
-	<script language="JavaScript" type="text/javascript">
-		$(document).ready(function() {
+{block name=content}
+	<div class="auth-brand">
+		<i class="bi bi-gift-fill"></i>
+		<h1>Gift Registry</h1>
+	</div>
+	<div class="card gr-card">
+		<div class="card-body p-4">
+			{if !$valid}
+				<h2 class="h4"><i class="bi bi-exclamation-triangle text-accent me-1"></i> Link not valid</h2>
+				<p>This password reset link is invalid, has already been used, or has expired.</p>
+				<div class="d-flex gap-2">
+					<a class="btn btn-primary" href="forgot.php">Request a new link</a>
+					<a class="btn btn-outline-secondary" href="login.php">Back to login</a>
+				</div>
+			{else}
+				<h2 class="h4 mb-3">New password for {$username}</h2>
+				<form name="resetform" id="resetform" method="post" action="reset.php">
+					<input type="hidden" name="action" value="reset">
+					<input type="hidden" name="token" value="{$token}">
+					{if isset($error)}
+						<div class="alert alert-danger">{$error}</div>
+					{/if}
+					<div class="mb-3">
+						<label class="form-label" for="newpwd">New password</label>
+						<input id="newpwd" name="newpwd" type="password" class="form-control" autocomplete="new-password">
+					</div>
+					<div class="mb-3">
+						<label class="form-label" for="confirmpwd">Confirm password</label>
+						<input id="confirmpwd" name="confirmpwd" type="password" class="form-control" autocomplete="new-password">
+					</div>
+					<div class="d-flex gap-2 mt-4">
+						<button type="submit" class="btn btn-primary">Change Password</button>
+						<a class="btn btn-outline-secondary" href="login.php">Cancel</a>
+					</div>
+				</form>
+			{/if}
+		</div>
+	</div>
+{/block}
+
+{block name=scripts}
+	<script>
+		$(function() {
 			$("#resetform").validate({
-				highlight: validate_highlight,
-				success: validate_success,
 				rules: {
-					newpwd: {
-						required: true
-					},
-					confirmpwd: {
-						required: true,
-						equalTo: "#newpwd"
-					}
+					newpwd: { required: true },
+					confirmpwd: { required: true, equalTo: "#newpwd" }
 				},
 				messages: {
-					newpwd: {
-						required: "A new password is required."
-					},
+					newpwd: { required: "A new password is required." },
 					confirmpwd: {
 						required: "Please type the new password again.",
 						equalTo: "The passwords don't match."
@@ -52,46 +79,4 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 			});
 		});
 	</script>
-</head>
-<body>
-	<div class="container" style="padding-top: 30px;">
-		<div class="row">
-			<div class="span12">
-	{if !$valid}
-				<div class="well">
-					<p>This password reset link is invalid, has already been used, or has expired.</p>
-					<p><a href="forgot.php">Request a new link</a> or go back to <a href="login.php">login</a>.</p>
-				</div>
-	{else}
-				<form name="resetform" id="resetform" method="post" action="reset.php" class="well form-horizontal">
-					<input type="hidden" name="action" value="reset">
-					<input type="hidden" name="token" value="{$token}">
-					<fieldset>
-						<legend>Choose a New Password for {$username}</legend>
-						{if isset($error)}
-							<div class="alert alert-error">{$error}</div>
-						{/if}
-						<div class="control-group">
-							<label class="control-label" for="newpwd">New password</label>
-							<div class="controls">
-								<input id="newpwd" name="newpwd" type="password" class="input-xlarge" autocomplete="new-password">
-							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label" for="confirmpwd">Confirm password</label>
-							<div class="controls">
-								<input id="confirmpwd" name="confirmpwd" type="password" class="input-xlarge" autocomplete="new-password">
-							</div>
-						</div>
-						<div class="form-actions">
-							<button type="submit" class="btn btn-primary">Change Password</button>
-							<button type="button" class="btn" onClick="document.location.href='login.php';">Cancel</button>
-						</div>
-					</fieldset>
-				</form>
-	{/if}
-			</div>
-		</div>
-	</div>
-</body>
-</html>
+{/block}

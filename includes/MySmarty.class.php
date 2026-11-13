@@ -41,6 +41,8 @@ class MySmarty extends \Smarty\Smarty {
 		parent::assign('isadmin', $isadmin);
 		parent::assign('opt', $this->opt());
 		parent::assign('csrf', function_exists('csrfToken') ? csrfToken() : '');
+		// e.g. "shoplist" for shoplist.php; lets the navbar highlight the current page.
+		parent::assign('currentpage', basename($_SERVER['SCRIPT_NAME'] ?? '', '.php'));
 		parent::display($t, $cache_id, $compile_id);
 	}
 }

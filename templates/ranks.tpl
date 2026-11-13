@@ -13,37 +13,91 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Manage Ranks</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/jquery.validate.min.js"></script>
-	<script src="js/giftreg.js"></script>
+{block name=title}Manage Ranks{/block}
 
-	<script language="JavaScript" type="text/javascript">
-		$(document).ready(function() {
-			$("#theform").validate({
-				highlight: validate_highlight,
-				success: validate_success,
+{block name=content}
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+		<h1 class="page-title me-auto">Ranks</h1>
+		<a class="btn btn-sm btn-primary" href="ranks.php#rankform"><i class="bi bi-plus-lg"></i> Add rank</a>
+	</div>
+
+	<section class="card gr-card stack-host mb-4">
+		<div class="card-body p-0 p-md-2">
+			<table class="table gr-table table-hover table-stack">
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Rendered HTML</th>
+						<th>Rank Order</th>
+						<th><span class="visually-hidden">Actions</span></th>
+					</tr>
+				</thead>
+				<tbody>
+					{foreach from=$ranks item=row}
+						<tr>
+							<td class="cell-title">{$row.title}</td>
+							<td data-label="Rendered" class="rank text-nowrap"><span>{$row.rendered nofilter}</span></td>
+							<td data-label="Order">{$row.rankorder}</td>
+							<td class="cell-actions">
+								<a class="btn btn-icon btn-sm btn-outline-secondary" href="ranks.php?csrf={$csrf}&action=promote&ranking={$row.ranking}&rankorder={$row.rankorder}" title="Promote"><i class="bi bi-arrow-up"></i><span class="act-label">Up</span></a>
+								<a class="btn btn-icon btn-sm btn-outline-secondary" href="ranks.php?csrf={$csrf}&action=demote&ranking={$row.ranking}&rankorder={$row.rankorder}" title="Demote"><i class="bi bi-arrow-down"></i><span class="act-label">Down</span></a>
+								<a class="btn btn-icon btn-sm btn-outline-secondary" href="ranks.php?csrf={$csrf}&action=edit&ranking={$row.ranking}#rankform" title="Edit Rank"><i class="bi bi-pencil"></i><span class="act-label">Edit</span></a>
+								<a class="btn btn-icon btn-sm btn-outline-danger" href="ranks.php?csrf={$csrf}&action=delete&ranking={$row.ranking}" title="Delete Rank" data-confirm="Are you sure you want to delete the rank &quot;{$row.title}&quot;?"><i class="bi bi-trash"></i><span class="act-label">Delete</span></a>
+							</td>
+						</tr>
+					{/foreach}
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<div class="row justify-content-center">
+		<div class="col-lg-8">
+			<form name="theform" id="rankform" method="get" action="ranks.php" class="card gr-card">
+				<input type="hidden" name="csrf" value="{$csrf}">
+				{if $action == "edit" || (isset($haserror) && $action == "update")}
+					<input type="hidden" name="ranking" value="{$ranking}">
+					<input type="hidden" name="action" value="update">
+				{elseif $action == "" || (isset($haserror) && $action == "insert")}
+					<input type="hidden" name="action" value="insert">
+				{/if}
+				<div class="card-header">
+					<h2 class="card-title"><i class="bi bi-star"></i>{if $action == "edit"}Edit Rank '{$title}'{else}Add Rank{/if}</h2>
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label class="form-label" for="title">Title</label>
+						<input id="title" name="title" class="form-control {if isset($title_error)}is-invalid{/if}" type="text" value="{$title}" maxlength="255">
+						{if isset($title_error)}<div class="invalid-feedback">{$title_error}</div>{/if}
+					</div>
+					<div>
+						<label class="form-label" for="rendered">HTML</label>
+						<textarea id="rendered" name="rendered" class="form-control font-monospace small {if isset($rendered_error)}is-invalid{/if}" rows="4">{$rendered}</textarea>
+						{if isset($rendered_error)}<div class="invalid-feedback">{$rendered_error}</div>{/if}
+					</div>
+				</div>
+				<div class="card-footer bg-transparent d-flex gap-2">
+					<button type="submit" class="btn btn-primary">{if $action == "" || $action == "insert"}Add{else}Update{/if}</button>
+					<a class="btn btn-outline-secondary" href="ranks.php">Cancel</a>
+				</div>
+			</form>
+		</div>
+	</div>
+{/block}
+
+{block name=scripts}
+	<script>
+		$(function() {
+			$("#rankform").validate({
 				rules: {
-					title: {
-						required: true,
-						maxlength: 50
-					},
-					rendered: {
-						required: true,
-						maxlength: 255
-					}
+					title: { required: true, maxlength: 50 },
+					rendered: { required: true, maxlength: 255 }
 				},
 				messages: {
 					title: {
-						required: "A title is required.", 
+						required: "A title is required.",
 						maxlength: "Title must be 50 characters or less."
 					},
 					rendered: {
@@ -54,92 +108,4 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 			});
 		});
 	</script>
-</head>
-<body>
-	{include file='navbar.tpl' isadmin=$isadmin}
-
-	<div class="container" style="padding-top: 60px;">
-
-		{if isset($message)}
-			<div class="row">
-				<div class="span12">
-					<div class="alert alert-block">{$message}</div>
-				</div>
-			</div>
-		{/if}
-
-		<div class="row">
-			<div class="span12">
-				<div class="well">
-					<h3>Ranks</h3>
-					<table class="table table-bordered table-striped">
-						<thead>
-							<tr>
-								<th>Title</th>
-								<th>Rendered HTML</th>
-								<th>Rank Order</th>
-							</tr>
-						</thead>
-						<tbody>
-							{foreach from=$ranks item=row}
-								<tr>
-									<td>{$row.title}</td>
-									<td>{$row.rendered nofilter}</td>
-									<td>{$row.rankorder}</td>
-									<td>
-										<a href="ranks.php?csrf={$csrf}&action=edit&ranking={$row.ranking}#rankform"><img src="images/pencil.png" border="0" alt="Edit Rank" title="Edit Rank" /></a>
-										<a href="ranks.php?csrf={$csrf}&action=delete&ranking={$row.ranking}"><img src="images/bin.png" border="0" alt="Delete Rank" title="Delete Rank" /></a>
-										<a href="ranks.php?csrf={$csrf}&action=promote&ranking={$row.ranking}&rankorder={$row.rankorder}"><img src="images/arrow-up.png" border="0" alt="Promote" title="Promote" /></a>
-										<a href="ranks.php?csrf={$csrf}&action=demote&ranking={$row.ranking}&rankorder={$row.rankorder}"><img src="images/arrow-down.png" border="0" alt="Demote" title="Demote" /></a>
-									</td>
-								</tr>
-							{/foreach}
-						</tbody>
-					</table>
-					<h5><a href="ranks.php#rankform">Add a new rank</a></h5>
-				</div>
-			</div>
-		</div>
-
-		<a name="rankform">
-		<div class="row">
-			<div class="span12">
-				<form name="theform" id="theform" method="get" action="ranks.php" class="well form-horizontal">
-					<input type="hidden" name="csrf" value="{$csrf}">	
-					{if $action == "edit" || (isset($haserror) && $action == "update")}
-						<input type="hidden" name="ranking" value="{$ranking}">
-						<input type="hidden" name="action" value="update">
-					{elseif $action == "" || (isset($haserror) && $action == "insert")}
-						<input type="hidden" name="action" value="insert">
-					{/if}
-					<fieldset>
-						<legend>{if $action == "edit"}Edit Rank '{$title}'{else}Add Rank{/if}</legend>
-						<div class="control-group {if isset($title_error)}warning{/if}">
-							<label class="control-label" for="title">Title</label>
-							<div class="controls">
-								<input id="title" name="title" class="input-xlarge" type="text" value="{$title}" maxlength="255">
-								{if isset($title_error)}
-									<span class="help-inline">{$title_error}</span>
-								{/if}
-							</div>
-						</div>
-						<div class="control-group {if isset($rendered_error)}warning{/if}">
-							<label class="control-label" for="rendered">HTML</label>
-							<div class="controls">
-								<textarea id="rendered" name="rendered" class="input-xlarge" rows="4" cols="40">{$rendered}</textarea>
-								{if isset($rendered_error)}
-									<span class="help-inline">{$rendered_error}</span>
-								{/if}
-							</div>
-						</div>
-						<div class="form-actions">
-							<button type="submit" class="btn btn-primary">{if $action == "" || $action == "insert"}Add{else}Update{/if}</button>
-							<button type="button" class="btn" onClick="document.location.href='ranks.php';">Cancel</button>
-						</div>
-					</fieldset>
-				</form>
-			</div>
-		</div>
-	</div>
-</body>
-</html>
+{/block}

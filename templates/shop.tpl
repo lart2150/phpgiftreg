@@ -13,205 +13,147 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Shopping List for {$ufullname}</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="js/giftreg.js"></script>
+{block name=title}Shopping List for {$ufullname}{/block}
 
-    <script language="JavaScript" type="text/javascript">
-		function printPage() {
-			window.print();
-		}
-
-		$(document).ready(function() {
-			enable_image_viewer();
-			$('a[rel=popover]').removeAttr('href').popover();
-		});
-	</script>
-</head>
-<body>
-	{include file='navbar.tpl' isadmin=$isadmin}
-
-	<div class="container" style="padding-top: 60px;">
-	{if isset($message)}
-		<div class="row">
-			<div class="span12">
-				<div class="alert alert-block">
-					{$message}
-				</div>
-			</div>
-		</div>
-	{/if}
-	<div class="row">
-		<h1>Shopping List for {$ufullname}</h1>
+{block name=content}
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+		<h1 class="page-title me-auto">Shopping for {$ufullname}</h1>
+		<button type="button" class="btn btn-sm btn-outline-secondary d-print-none" data-print><i class="bi bi-printer"></i> Print</button>
 	</div>
+
 	{if $opt.show_helptext}
-		<div class="row">
-			<div class="span12">
-				<div class="alert alert-info">
-					<ul>
-						<li>If you intend to purchase a gift for this person, click the <img src="images/locked.png"> icon.  If you end up actually purchasing it, come back and click the <img src="images/credit-card-3.png"> icon.  If you change your mind and don't want to buy it, come back and click the <img src="images/unlocked.png"> icon.</li>
-						<li>If you return something you've purchased, come back and click the <img src="images/return.png"> icon.  It will remain reserved for you.</li>
-						<li>Just because an item has a URL listed doesn't mean you have to buy it from there (unless the comment says so).</li>
-						<li>You can click the column headers to sort by that attribute.</li>
-						<li>If you see something you'd like for yourself, click the <img src="images/split-2.png"> icon to copy it to your own list.</li>
-					</ul>
-				</div>
-			</div>
-		</div>
+		<details class="gr-tips mb-4">
+			<summary><i class="bi bi-lightbulb me-1"></i> Tips</summary>
+			<ul class="small">
+				<li>If you intend to purchase a gift for this person, click <i class="bi bi-lock"></i> <strong>Reserve</strong>. If you end up actually purchasing it, come back and click <i class="bi bi-credit-card"></i> <strong>Purchase</strong>. If you change your mind and don't want to buy it, come back and click <i class="bi bi-unlock"></i> <strong>Release</strong>.</li>
+				<li>If you return something you've purchased, come back and click <i class="bi bi-arrow-counterclockwise"></i> <strong>Return</strong>. It will remain reserved for you.</li>
+				<li>Just because an item has a URL listed doesn't mean you have to buy it from there (unless the comment says so).</li>
+				<li>You can click the column headers to sort by that attribute.</li>
+				<li>If you see something you'd like for yourself, click <i class="bi bi-copy"></i> <strong>I Want This Too</strong> to copy it to your own list.</li>
+			</ul>
+		</details>
 	{/if}
-	<div class="row">
-		<div class="span6 offset6">
-			<div class="alert alert-info">
-		<img src="images/locked.png" alt="Reserve" title="Reserve"> = Reserve, <img src="images/unlocked.png" alt="Release" title="Release"> = Release, <img src="images/credit-card-3.png" alt="Purchase" title="Purchase"> = Purchase, <img src="images/return.png" alt="Return" title="Return"> = Return, <img src="images/split-2.png" alt="I Want This Too" title="I Want This Too"> = I Want This Too
+
+	<section class="card gr-card stack-host">
+		<div class="card-header d-flex flex-wrap align-items-center gap-2">
+			<div class="small gr-subtle me-auto d-none d-md-block">
+				<i class="bi bi-lock"></i> Reserve &nbsp;
+				<i class="bi bi-unlock"></i> Release &nbsp;
+				<i class="bi bi-credit-card"></i> Purchase &nbsp;
+				<i class="bi bi-arrow-counterclockwise"></i> Return &nbsp;
+				<i class="bi bi-copy"></i> I Want This Too
+			</div>
+			<div class="ms-auto">
+				{include file='sortmenu.tpl' url="shop.php?shopfor={$shopfor}&sort=" options=['ranking' => 'Rank', 'description' => 'Description', 'category' => 'Category', 'price' => 'Price', 'source' => 'Store/Location', 'status' => 'Status']}
 			</div>
 		</div>
-	</div>
-	<div class="row">
-		<div class="span12">
-			<div class="well">
-		<table class="table table-bordered table-striped">
-			<thead>
-			<tr>
-				<th><a href="shop.php?shopfor={$shopfor}&sort=ranking">Rank</a></th>
-				<th><a href="shop.php?shopfor={$shopfor}&sort=description">Description</a></th>
-				<th><a href="shop.php?shopfor={$shopfor}&sort=category">Category</a></th>
-				<th><a href="shop.php?shopfor={$shopfor}&sort=price">Price</a></th>
-				<th><a href="shop.php?shopfor={$shopfor}&sort=source">Store/Location</a></th>
-				<th><a href="shop.php?shopfor={$shopfor}&sort=status">Status</a></th>
-				<th>&nbsp;</th>
-			</tr>
-			</thead>
-			<tbody>
-			{foreach from=$shoprows item=row}
-				<tr valign="top">
-					<td nowrap>{$row.rendered nofilter}</td>
-					<td>
-						{$row.description}
-						{if $row.comment != ''}
-							<a class="btn btn-small" rel="popover" href="#" data-placement="right" data-original-title="Comment" data-content="{$row.comment}">...</a>
-						{/if}
-						{if $row.url != ''}
-							<a href="{$row.url}" target="_blank"><img src="images/link.png" border="0" alt="URL" title="URL"></a>
-						{/if}
-						{if $row.image_filename != '' && $opt.allow_images}
-							<a rel="lightbox" href="{$opt.image_subdir}/{$row.image_filename}" title="{$row.description}"><img src="images/image.png" border="0" alt="Image" /></a>
-						{/if}
-					</td>
-					<td>{if $row.category != ''}{$row.category}{else}&nbsp;{/if}</td>
-					<td align="right">{$row.price nofilter}</td>
-					<td>{$row.source}</td>
-					{if $row.quantity > 1}
-						<td>
-							{foreach from=$row.allocs item=alloc}
-								<b>{$alloc}</b><br />
-							{/foreach}
-							{$row.avail} remaining.<br />
+		<div class="card-body p-0 p-md-2">
+			<table class="table gr-table table-hover table-stack">
+				<thead>
+					<tr>
+						<th><a href="shop.php?shopfor={$shopfor}&sort=ranking">Rank</a></th>
+						<th><a href="shop.php?shopfor={$shopfor}&sort=description">Description</a></th>
+						<th><a href="shop.php?shopfor={$shopfor}&sort=category">Category</a></th>
+						<th class="text-end"><a href="shop.php?shopfor={$shopfor}&sort=price">Price</a></th>
+						<th><a href="shop.php?shopfor={$shopfor}&sort=source">Store/Location</a></th>
+						<th><a href="shop.php?shopfor={$shopfor}&sort=status">Status</a></th>
+						<th class="d-print-none"><span class="visually-hidden">Actions</span></th>
+					</tr>
+				</thead>
+				<tbody>
+				{foreach from=$shoprows item=row}
+					<tr>
+						<td data-label="Rank" class="rank text-nowrap"><span>{$row.rendered nofilter}</span></td>
+						<td class="cell-title">
+							{$row.description}
+							{include file='itemlinks.tpl' row=$row}
 						</td>
-						<td nowrap align="right">
-							{if $row.avail > 0 || $row.ireserved > 0 || $row.ibought > 0}
-								{if $row.ireserved > 0}
-									{assign var="reservetext" value="Reserve Another"}
+						<td data-label="Category">{if $row.category != ''}{$row.category}{else}<span class="gr-subtle">&mdash;</span>{/if}</td>
+						<td data-label="Price" class="text-end">{$row.price nofilter}</td>
+						<td data-label="Store">{$row.source}</td>
+
+						{* ----- status ----- *}
+						<td data-label="Status">
+							{if $row.quantity > 1}
+								<div>
+									{foreach from=$row.allocs item=alloc}
+										<div class="fw-semibold">{$alloc}</div>
+									{/foreach}
+									<div class="gr-subtle">{$row.avail} remaining.</div>
+								</div>
+							{elseif $row.rfullname == '' && $row.bfullname == ''}
+								<span class="badge status-badge badge-evergreen">Available</span>
+							{elseif $row.rfullname != ''}
+								{if $row.reservedid == $userid}
+									<span class="badge status-badge badge-accent"><i class="bi bi-lock-fill"></i> Reserved by you</span>
+								{elseif $opt.anonymous_purchasing}
+									<span class="badge status-badge text-bg-secondary">Reserved</span>
 								{else}
-									{assign var="reservetext" value="Reserve Item"}
+									<span class="badge status-badge text-bg-secondary">Reserved by {$row.rfullname}</span>
+								{/if}
+							{else}
+								{if $row.boughtid == $userid}
+									<span class="badge status-badge badge-accent"><i class="bi bi-bag-check-fill"></i> Bought by you</span>
+								{elseif $opt.anonymous_purchasing}
+									<span class="badge status-badge text-bg-secondary">Bought</span>
+								{else}
+									<span class="badge status-badge text-bg-secondary">Bought by {$row.bfullname}</span>
+								{/if}
+							{/if}
+						</td>
+
+						{* ----- actions ----- *}
+						<td class="cell-actions d-print-none">
+							{if $row.quantity > 1}
+								{if $row.avail > 0 || $row.ireserved > 0 || $row.ibought > 0}
+									{if $row.ireserved > 0}
+										{assign var="reservetext" value="Reserve Another"}
+									{else}
+										{assign var="reservetext" value="Reserve Item"}
+									{/if}
+									{if $row.ibought > 0}
+										{assign var="purchasetext" value="Purchase Another"}
+									{elseif $row.ireserved > 0}
+										{assign var="purchasetext" value="Convert Reserve to Purchase"}
+									{else}
+										{assign var="purchasetext" value="Purchase Item"}
+									{/if}
+									{if $row.avail > 0}
+										<a class="btn btn-icon btn-sm btn-outline-primary" href="shop.php?csrf={$csrf}&action=reserve&itemid={$row.itemid}&shopfor={$shopfor}" title="{$reservetext}"><i class="bi bi-lock"></i><span class="act-label">{$reservetext}</span></a>
+									{/if}
+									{if $row.avail > 0 || $row.ireserved > 0}
+										<a class="btn btn-icon btn-sm btn-outline-success" href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}" title="{$purchasetext}"><i class="bi bi-credit-card"></i><span class="act-label">{$purchasetext}</span></a>
+									{/if}
+								{/if}
+								{if $row.ireserved > 0}
+									<a class="btn btn-icon btn-sm btn-outline-secondary" href="shop.php?csrf={$csrf}&action=release&itemid={$row.itemid}&shopfor={$shopfor}" title="Release Item"><i class="bi bi-unlock"></i><span class="act-label">Release</span></a>
 								{/if}
 								{if $row.ibought > 0}
-									{assign var="purchasetext" value="Purchase Another"}
-								{elseif $row.ireserved > 0}
-									{assign var="purchasetext" value="Convert Reserve to Purchase"}
-								{else}
-									{assign var="purchasetext" value="Purchase Item"}
+									<a class="btn btn-icon btn-sm btn-outline-secondary" href="shop.php?csrf={$csrf}&action=return&itemid={$row.itemid}&shopfor={$shopfor}" title="Return Item"><i class="bi bi-arrow-counterclockwise"></i><span class="act-label">Return</span></a>
 								{/if}
-								{if $row.avail > 0}
-									<a href="shop.php?csrf={$csrf}&action=reserve&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="{$reservetext}" title="{$reservetext}" src="images/locked.png" border="0" /></a>
+							{elseif $row.rfullname == '' && $row.bfullname == ''}
+								<a class="btn btn-icon btn-sm btn-outline-primary" href="shop.php?csrf={$csrf}&action=reserve&itemid={$row.itemid}&shopfor={$shopfor}" title="Reserve Item"><i class="bi bi-lock"></i><span class="act-label">Reserve</span></a>
+								<a class="btn btn-icon btn-sm btn-outline-success" href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}" title="Purchase Item"><i class="bi bi-credit-card"></i><span class="act-label">Purchase</span></a>
+							{elseif $row.rfullname != ''}
+								{if $row.reservedid == $userid}
+									<a class="btn btn-icon btn-sm btn-outline-secondary" href="shop.php?csrf={$csrf}&action=release&itemid={$row.itemid}&shopfor={$shopfor}" title="Release Item"><i class="bi bi-unlock"></i><span class="act-label">Release</span></a>
+									<a class="btn btn-icon btn-sm btn-outline-success" href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}" title="Purchase Item"><i class="bi bi-credit-card"></i><span class="act-label">Purchase</span></a>
 								{/if}
-								{if $row.avail > 0 || $row.ireserved > 0}
-									<a href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="{$purchasetext}" title="{$purchasetext}" src="images/credit-card-3.png" border="0" /></a>
-								{/if}
+							{elseif $row.boughtid == $userid}
+								<a class="btn btn-icon btn-sm btn-outline-secondary" href="shop.php?csrf={$csrf}&action=return&itemid={$row.itemid}&shopfor={$shopfor}" title="Return Item"><i class="bi bi-arrow-counterclockwise"></i><span class="act-label">Return</span></a>
 							{/if}
-							{if $row.ireserved > 0}
-								<a href="shop.php?csrf={$csrf}&action=release&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Release Item" title="Release Item" src="images/unlocked.png" border="0" /></a>
-							{/if}
-							{if $row.ibought > 0}
-								<a href="shop.php?csrf={$csrf}&action=return&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Return Item" title="Return Item" src="images/return.png" border="0" /></a>
-							{/if}
-						{* </td> *}
-					{else}
-						{if $row.rfullname == '' && $row.bfullname == ''}
-							<td>
-								<i>Available.</i>
-							</td>
-							<td nowrap align="right">
-								<a href="shop.php?csrf={$csrf}&action=reserve&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Reserve Item" title="Reserve Item" src="images/locked.png" border="0" /></a>&nbsp;<a href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Purchase Item" title="Purchase Item" src="images/credit-card-3.png" border="0" /></a>
-							{* </td> *}
-						{elseif $row.rfullname != ''}
-							{if $row.reservedid == $userid}
-								<td>
-									<i><b>Reserved by you.</b></i>
-								</td>
-								<td align="right">
-									<a href="shop.php?csrf={$csrf}&action=release&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Release Item" title="Release Item" src="images/unlocked.png" border="0" /></a>&nbsp;<a href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Purchase Item" title="Purchase Item" src="images/credit-card-3.png" border="0" /></a>
-								{* </td> *}
-							{else}
-								<td>
-									{if $opt.anonymous_purchasing}
-										<i>Reserved.</i>
-									{else}
-										<i>Reserved by {$row.rfullname}.</i>
-									{/if}
-								</td>
-								<td>
-								{* </td> *}
-							{/if}
-						{elseif $row.bfullname != ''}
-							{if $row.boughtid == $userid}
-								<td>
-									<i><b>Bought by you.</b></i>
-								</td>
-								<td align="right">
-									<a href="shop.php?csrf={$csrf}&action=return&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Return Item" title="Return Item" src="images/return.png" border="0" /></a>
-								{* </td> *}
-							{else}
-								{if $opt.anonymous_purchasing}
-									<td>
-										<i>Bought.</i>
-									</td>
-									<td>
-									{* </td> *}
-								{else}
-									<td>
-										<i>Bought by {$row.bfullname}.</i>
-									</td>
-									<td>
-									{* </td> *}
-								{/if}
-							{/if}
-						{/if}
-					{/if}
-					{* <td> *}
-						<a href="shop.php?csrf={$csrf}&action=copy&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="I Want This Too" title="I Want This Too" src="images/split-2.png" border="0" /></a>
-					</td>
-				</tr>
-			{/foreach}
-			</tbody>
-		</table>
-	</div>
-	</div>
-	</div>
-	<div class="row">
-		<div class="span6">
-			<div class="well">
-				<a onClick="printPage()" href="#">Send to printer</a>
-			</div>
+							<a class="btn btn-icon btn-sm btn-outline-secondary" href="shop.php?csrf={$csrf}&action=copy&itemid={$row.itemid}&shopfor={$shopfor}" title="I Want This Too"><i class="bi bi-copy"></i><span class="act-label">I Want This Too</span></a>
+						</td>
+					</tr>
+				{foreachelse}
+					<tr class="row-empty">
+						<td colspan="7" class="cell-empty gr-empty"><i class="bi bi-gift"></i>{$ufullname} hasn't added any items yet.</td>
+					</tr>
+				{/foreach}
+				</tbody>
+			</table>
 		</div>
-	</div>
-	</div>
-</body>
-</html>
+	</section>
+{/block}

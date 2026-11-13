@@ -4,33 +4,21 @@ Building this software would have been impossible without building on the work o
 people and projects (in no particular order) for their work:
 
 Smarty Template Engine
-http://www.smarty.net/
+https://www.smarty.net/
 
 Bootstrap
-http://twitter.github.com/bootstrap/
+https://getbootstrap.com/
 
-Bootswatch
-http://bootswatch.com/
+Bootstrap Icons
+https://icons.getbootstrap.com/
+
+jQuery
+https://jquery.com/
 
 jQuery Validation plugin
 Jorn Zaefferer
-http://bassistance.de/jquery-plugins/jquery-plugin-validation/
-
-Batch.
-Adam Whitcroft
-http://adamwhitcroft.com/batch/
+https://jqueryvalidation.org/
 
 jQuery Validate Bootstrap integration
 David Cochran
 http://alittlecode.com/files/jQuery-Validate-Demo/
-
-Datepicker for Boostrap
-http://www.eyecon.ro/bootstrap-datepicker/
-
-jQuery lightBox plugin
-Leandro Vieira Pinho
-http://leandrovieira.com/projects/jquery/lightbox/
-
-Lightbox2
-Lokesh Dhakar
-http://lokeshdhakar.com/projects/lightbox2/

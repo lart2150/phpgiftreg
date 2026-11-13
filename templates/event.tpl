@@ -13,37 +13,118 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *}
+{extends file='layout.tpl'}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<title>Gift Registry - Manage Events</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<link href="datepicker/css/datepicker.css" rel="stylesheet">
-	<script src="datepicker/js/bootstrap-datepicker.js"></script>
-	<script src="js/jquery.validate.min.js"></script>
-	<script src="js/giftreg.js"></script>
+{block name=title}Manage Events{/block}
 
-	<script language="JavaScript" type="text/javascript">
-		$(document).ready(function() {
-			$('#eventdate').datepicker();
+{block name=content}
+	{assign var="editing" value=($action == "edit" || (isset($haserror) && $action == "update"))}
 
+	<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+		<h1 class="page-title me-auto">Events</h1>
+		<a class="btn btn-sm btn-primary" href="event.php#eventform"><i class="bi bi-plus-lg"></i> Add event</a>
+	</div>
+
+	{if $opt.show_helptext}
+		<details class="gr-tips mb-4">
+			<summary><i class="bi bi-lightbulb me-1"></i> Tips</summary>
+			<p class="small mb-1">
+				Here you can specify events <strong>of your own</strong>, like your birthday or your anniversary. When the event occurs within {$opt.event_threshold} days, an event reminder will appear in the display of everyone who shops for you.
+				{if $isadmin}
+					<strong>System events</strong> are events which belong to no one -- like Christmas -- and will appear on everyone's display.
+				{/if}
+				Marking an item as <strong>Recurring yearly</strong> will cause them to show up year after year.
+			</p>
+		</details>
+	{/if}
+
+	<div class="row g-4">
+		<div class="col-lg-7">
+			<section class="card gr-card stack-host">
+				<div class="card-body p-0 p-md-2">
+					<table class="table gr-table table-hover table-stack">
+						<thead>
+							<tr>
+								<th>Description</th>
+								<th>Event date</th>
+								<th>Recurring?</th>
+								{if $isadmin}<th>System event?</th>{/if}
+								<th><span class="visually-hidden">Actions</span></th>
+							</tr>
+						</thead>
+						<tbody>
+							{foreach from=$events item=row}
+								<tr>
+									<td class="cell-title">{$row.description}</td>
+									<td data-label="Date">{$row.eventdate}</td>
+									<td data-label="Recurring">{if $row.recurring}<i class="bi bi-arrow-repeat text-evergreen"></i> Yes{else}No{/if}</td>
+									{if $isadmin}
+										<td data-label="System event">{if $row.userid == ''}Yes{else}No{/if}</td>
+									{/if}
+									<td class="cell-actions">
+										<a class="btn btn-icon btn-sm btn-outline-secondary" href="event.php?csrf={$csrf}&action=edit&eventid={$row.eventid}#eventform" title="Edit Event"><i class="bi bi-pencil"></i><span class="act-label">Edit</span></a>
+										<a class="btn btn-icon btn-sm btn-outline-danger" href="event.php?csrf={$csrf}&action=delete&eventid={$row.eventid}" title="Delete Event" data-confirm="Are you sure you want to delete the event &quot;{$row.description}&quot;?"><i class="bi bi-trash"></i><span class="act-label">Delete</span></a>
+									</td>
+								</tr>
+							{foreachelse}
+								<tr class="row-empty"><td colspan="{if $isadmin}5{else}4{/if}" class="cell-empty gr-empty"><i class="bi bi-calendar"></i>No events yet.</td></tr>
+							{/foreach}
+						</tbody>
+					</table>
+				</div>
+			</section>
+		</div>
+
+		<div class="col-lg-5">
+			<form name="eventform" id="eventform" method="get" action="event.php" class="card gr-card">
+				<div class="card-header">
+					<h2 class="card-title"><i class="bi bi-calendar-plus"></i>{if $editing}Edit Event{else}Add Event{/if}</h2>
+				</div>
+				<div class="card-body">
+					<input type="hidden" name="csrf" value="{$csrf}">
+					{if $editing}
+						<input type="hidden" name="eventid" value="{$eventid}">
+						<input type="hidden" name="action" value="update">
+					{elseif $action == "" || (isset($haserror) && $action == "insert")}
+						<input type="hidden" name="action" value="insert">
+					{/if}
+					<div class="mb-3">
+						<label class="form-label" for="description">Description</label>
+						<input id="description" name="description" type="text" value="{$description}" class="form-control {if isset($description_error)}is-invalid{/if}" maxlength="255" placeholder="e.g. Birthday">
+						{if isset($description_error)}<div class="invalid-feedback">{$description_error}</div>{/if}
+					</div>
+					<div class="mb-3">
+						<label class="form-label" for="eventdate">Event date</label>
+						<input id="eventdate" name="eventdate" type="date" value="{$eventdate}" class="form-control {if isset($eventdate_error)}is-invalid{/if}">
+						{if isset($eventdate_error)}<div class="invalid-feedback">{$eventdate_error}</div>{/if}
+					</div>
+					<div class="form-check mb-2">
+						<input class="form-check-input" type="checkbox" name="recurring" id="recurring" {if $recurring}checked{/if}>
+						<label class="form-check-label" for="recurring">Recurring yearly</label>
+					</div>
+					{if $isadmin}
+						<div class="form-check mb-2">
+							<input class="form-check-input" type="checkbox" name="systemevent" id="systemevent" {if $systemevent}checked{/if}>
+							<label class="form-check-label" for="systemevent">System event <span class="gr-subtle">(shows for everyone)</span></label>
+						</div>
+					{/if}
+				</div>
+				<div class="card-footer bg-transparent d-flex gap-2">
+					<button type="submit" class="btn btn-primary">{if $action == "" || $action == "insert"}Add{else}Update{/if}</button>
+					<a class="btn btn-outline-secondary" href="event.php">Cancel</a>
+				</div>
+			</form>
+		</div>
+	</div>
+{/block}
+
+{block name=scripts}
+	<script>
+		$(function() {
 			$('#eventform').validate({
-				highlight: validate_highlight,
-				success: validate_success,
 				rules: {
-					description: {
-						required: true,
-						maxlength: 255
-					},
-					eventdate: {
-						required: true,
-						"date": true
-					}
+					description: { required: true, maxlength: 255 },
+					eventdate: { required: true, dateISO: true }
 				},
 				messages: {
 					description: {
@@ -52,132 +133,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 					},
 					eventdate: {
 						required: "The event date is required.",
-						"date": "The event date must be a valid date in mm/dd/yyyy format."
+						dateISO: "The event date must be a valid date."
 					}
 				}
 			});
 		});
 	</script>
-</head>
-<body>
-	{include file='navbar.tpl' isadmin=$isadmin}
-
-	<div class="container" style="padding-top: 60px;">
-	{if isset($message)}
-		<div class="row">
-			<div class="span12">
-    			<div class="alert alert-block">
-					{$message}
-				</div>
-			</div>
-		</div>
-	{/if}
-	{if $opt.show_helptext}
-		<div class="row">
-			<div class="span12">
-				<div class="alert alert-info">
-					Here you can specify events <strong>of your own</strong>, like your birthday or your anniversary.  When the event occurs within {$opt.event_threshold} days, an event reminder will appear in the display of everyone who shops for you.
-					{if $isadmin}
-						<strong>System events</strong> are events which belong to no one -- like Christmas -- and will appear on everyone's display.
-					{/if}
-					Marking an item as <strong>Recurring yearly</strong> will cause them to show up year after year.
-				</div>
-			</div>
-		</div>
-	{/if}
-	<div class="row">
-		<div class="span12">
-			<div class="well">
-				<h1>Events</h1>
-				<table class="table table-bordered table-striped">
-					<thead>
-						<tr>
-							<th>Event date</th>
-							<th>Description</th>
-							<th>Recurring?</th>
-							{if $isadmin}
-								<th>System event?</th>
-							{/if}
-							<th>&nbsp;</th>
-						</tr>
-					</thead>
-					<tbody>
-						{foreach from=$events item=row}
-							<tr>
-								<td>{$row.eventdate}</td>
-								<td>{$row.description}</td>
-								<td>{if $row.recurring}Yes{else}No{/if}</td>
-								{if $isadmin}
-									<td>
-										{if $row.userid == ''}Yes{else}No{/if}
-									</td>
-								{/if}
-								<td>
-									<a href="event.php?csrf={$csrf}&action=edit&eventid={$row.eventid}"><img alt="Edit Event" src="images/pencil.png" border="0" title="Edit Event" /></a>&nbsp;<a href="event.php?csrf={$csrf}&action=delete&eventid={$row.eventid}"><img alt="Delete Event" src="images/bin.png" border="0" title="Delete Event" /></a>
-								</td>
-							</tr>
-						{/foreach}
-					</tbody>
-				</table>
-				<h5><a href="event.php">Add a new event</a></h5>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="span8 offset2">
-			<form name="eventform" id="eventform" method="get" action="event.php" class="well form-horizontal">
-				<input type="hidden" name="csrf" value="{$csrf}">
-				<fieldset>
-					<legend>Event Details</legend>
-					{if $action == "edit" || (isset($haserror) && $action == "update")}
-						<input type="hidden" name="eventid" value="{$eventid}">
-						<input type="hidden" name="action" value="update">
-					{elseif $action == "" || (isset($haserror) && $action == "insert")}
-						<input type="hidden" name="action" value="insert">
-					{/if}
-					<div class="control-group {if isset($description_error)}warning{/if}">
-						<label class="control-label" for="description">Description</label>
-						<div class="controls">
-							<input id="description" name="description" type="text" value="{$description}" class="input-xlarge" maxlength="255" placeholder="Description">
-							{if isset($description_error)}
-								<span class="help-inline">{$description_error}</span>
-							{/if}
-						</div>
-					</div>
-					<div class="control-group {if isset($eventdate_error)}warning{/if}">
-						<label class="control-label" for="eventdate">Event date</label>
-						<div class="controls">
-							<input id="eventdate" name="eventdate" type="text" value="{$eventdate}" class="input-xlarge" placeholder="mm/dd/yyyy" data-date-format="mm/dd/yyyy">
-							<p class="help-block">mm/dd/yyyy</p>
-							{if isset($eventdate_error)}
-								<span class="help-inline">{$eventdate_error}</span>
-							{/if}
-						</div>
-					</div>
-					<div class="control-group">
-						<label class="control-label" for="recurring">Recurring</label>
-						<div class="controls">
-							<input type="checkbox" name="recurring" {if $recurring}CHECKED{/if}>
-							Recurring yearly
-						</div>
-					</div>
-					{if $isadmin}
-						<div class="control-group">
-							<label class="control-label" for="systemevent">System event</label>
-							<div class="controls">
-								<input type="checkbox" name="systemevent" {if $systemevent}CHECKED{/if}>
-								System event
-							</div>
-						</div>
-					{/if}
-					<div class="form-actions">
-						<button type="submit" class="btn btn-primary">{if $action == "" || $action == "insert"}Add{else}Update{/if}</button>
-						<button type="button" class="btn" onClick="document.location.href='event.php';">Cancel</button>
-					</div>
-				</fieldset>
-			</form>
-		</div>
-	</div>
-</div>
-</body>
-</html>
+{/block}

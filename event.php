@@ -206,7 +206,8 @@ try {
 	$smarty->assign('haserror', $haserror);
 	$smarty->assign('events', $events);
 	// on a bad date, redisplay what the user typed alongside the error.
-	$smarty->assign('eventdate', $eventdate instanceof DateTime ? $eventdate->format($opt["date_format"]) : getParam("eventdate"));
+	// the form uses <input type="date">, which always submits and expects Y-m-d.
+	$smarty->assign('eventdate', $eventdate instanceof DateTime ? $eventdate->format("Y-m-d") : getParam("eventdate"));
 	if (isset($eventdate_error)) {
 		$smarty->assign('eventdate_error', $eventdate_error);
 	}
