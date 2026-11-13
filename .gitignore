@@ -1,0 +1,8 @@
+# Legacy SVN metadata
+.svn/
+
+# Runtime / generated directories (must exist and be writable)
+cache/*
+templates_c/*
+item_images/*
+!.gitkeep
