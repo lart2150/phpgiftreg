@@ -94,7 +94,7 @@ function getExistingQuantity($itemid, $userid, $bought, $dbh, $opt) {
 
 function processSubscriptions($publisher, $action, $itemdesc, $dbh, $opt) {
 	// join the users table as a cheap way to get the guy's name without having to pass it in.
-	$stmt = $dbh->prepare("SELECT subscriber, fullname FROM subscriptions sub INNER JOIN users u ON u.userid = sub.publisher WHERE publisher = ? AND (last_notified IS NULL OR DATE_ADD(last_notified, INTERVAL {$opt["notify_threshold_minutes"]} MINUTE) < NOW())");
+	$stmt = $dbh->prepare("SELECT subscriber, fullname FROM {$opt["table_prefix"]}subscriptions sub INNER JOIN {$opt["table_prefix"]}users u ON u.userid = sub.publisher WHERE publisher = ? AND (last_notified IS NULL OR DATE_ADD(last_notified, INTERVAL " . (int) $opt["notify_threshold_minutes"] . " MINUTE) < NOW())");
 	$stmt->bindParam(1, $publisher, PDO::PARAM_INT);
 	$stmt->execute();
 
@@ -116,7 +116,7 @@ function processSubscriptions($publisher, $action, $itemdesc, $dbh, $opt) {
 		sendMessage($publisher, $row["subscriber"], $msg, $dbh, $opt);
 
 		// stamp the subscription.
-		$stmt2 = $dbh->prepare("UPDATE subscriptions SET last_notified = NOW() WHERE publisher = ? AND subscriber = ?");
+		$stmt2 = $dbh->prepare("UPDATE {$opt["table_prefix"]}subscriptions SET last_notified = NOW() WHERE publisher = ? AND subscriber = ?");
 		$stmt2->bindParam(1, $publisher, PDO::PARAM_INT);
 		$stmt2->bindParam(2, $row["subscriber"], PDO::PARAM_INT);
 		$stmt2->execute();
