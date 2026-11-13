@@ -115,6 +115,6 @@ try {
 	$smarty->display('receive.tpl');
 }
 catch (PDOException $e) {
-	die("sql exception: " . $e->getMessage());
+	failWithError($e);
 }
 ?>

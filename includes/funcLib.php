@@ -30,6 +30,19 @@ if (!headers_sent()) {
 	header("Referrer-Policy: same-origin");
 }
 
+/* Log error details for the administrator; show the user only a generic
+	message (exception text can contain SQL, table names or connection info). */
+function failWithError($e) {
+	error_log("phpgiftreg: " . get_class($e) . ": " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+	if (!headers_sent()) {
+		http_response_code(500);
+	}
+	die("Sorry, something went wrong.  The details have been logged for the site administrator.");
+}
+
+// also catches exceptions nothing else handles (e.g. a failed DB connection).
+set_exception_handler("failWithError");
+
 /* Read a request parameter as a string without PHP 8 "Undefined array key"
 	warnings.  Missing parameters (e.g. unchecked checkboxes) and non-scalar
 	values (e.g. ?x[]=1) return $default. */
@@ -99,6 +112,82 @@ function canShopFor($shopper, $owner, $dbh, $opt) {
 	$stmt->execute();
 	$row = $stmt->fetch();
 	return $row && !$row["pending"];
+}
+
+/* ---- Login throttling ----
+	Failed logins are recorded in the login_failures table.  Once a username,
+	or a client IP address, has too many recent failures, further attempts are
+	refused without checking the password.  Limits can be overridden in
+	config.php with login_max_failures_per_user, login_max_failures_per_ip and
+	login_lockout_minutes.  If the table is missing (migration not run yet),
+	throttling is skipped and logged rather than breaking logins. */
+function loginThrottleLimits($opt) {
+	return array(
+		isset($opt["login_max_failures_per_user"]) ? (int) $opt["login_max_failures_per_user"] : 10,
+		isset($opt["login_max_failures_per_ip"]) ? (int) $opt["login_max_failures_per_ip"] : 30,
+		isset($opt["login_lockout_minutes"]) ? (int) $opt["login_lockout_minutes"] : 15
+	);
+}
+
+function clientIp() {
+	return isset($_SERVER["REMOTE_ADDR"]) ? substr($_SERVER["REMOTE_ADDR"], 0, 45) : "";
+}
+
+function loginIsThrottled($username, $dbh, $opt) {
+	list($perUser, $perIp, $minutes) = loginThrottleLimits($opt);
+	try {
+		$stmt = $dbh->prepare("SELECT " .
+			"(SELECT COUNT(*) FROM {$opt["table_prefix"]}login_failures WHERE username = ? AND attempted > NOW() - INTERVAL ? MINUTE), " .
+			"(SELECT COUNT(*) FROM {$opt["table_prefix"]}login_failures WHERE ip = ? AND attempted > NOW() - INTERVAL ? MINUTE)");
+		$stmt->bindValue(1, (string) $username, PDO::PARAM_STR);
+		$stmt->bindValue(2, $minutes, PDO::PARAM_INT);
+		$stmt->bindValue(3, clientIp(), PDO::PARAM_STR);
+		$stmt->bindValue(4, $minutes, PDO::PARAM_INT);
+		$stmt->execute();
+		$row = $stmt->fetch(PDO::FETCH_NUM);
+		return $row[0] >= $perUser || $row[1] >= $perIp;
+	}
+	catch (PDOException $e) {
+		error_log("phpgiftreg: login throttling unavailable (run sql/security-tables.sql?): " . $e->getMessage());
+		return false;
+	}
+}
+
+function recordLoginFailure($username, $dbh, $opt) {
+	try {
+		$stmt = $dbh->prepare("INSERT INTO {$opt["table_prefix"]}login_failures(username, ip, attempted) VALUES(?, ?, NOW())");
+		$stmt->bindValue(1, substr((string) $username, 0, 20), PDO::PARAM_STR);
+		$stmt->bindValue(2, clientIp(), PDO::PARAM_STR);
+		$stmt->execute();
+		// housekeeping: nothing older than a day is needed.
+		$dbh->exec("DELETE FROM {$opt["table_prefix"]}login_failures WHERE attempted < NOW() - INTERVAL 1 DAY");
+	}
+	catch (PDOException $e) {
+		error_log("phpgiftreg: could not record login failure: " . $e->getMessage());
+	}
+}
+
+function clearLoginFailures($username, $dbh, $opt) {
+	try {
+		$stmt = $dbh->prepare("DELETE FROM {$opt["table_prefix"]}login_failures WHERE username = ?");
+		$stmt->bindValue(1, (string) $username, PDO::PARAM_STR);
+		$stmt->execute();
+	}
+	catch (PDOException $e) {
+		error_log("phpgiftreg: could not clear login failures: " . $e->getMessage());
+	}
+}
+
+/* Absolute URL for links sent by e-mail (e.g. password resets).  Uses the
+	configured base_url, because the Host header used by getFullPath() is
+	client-controlled: an attacker could otherwise get a genuine reset link
+	that points at their own server ("password reset poisoning"). */
+function getSiteUrl($url, $opt) {
+	if (!empty($opt["base_url"])) {
+		return rtrim($opt["base_url"], "/") . "/" . $url;
+	}
+	error_log("phpgiftreg: base_url is not set in config.php; e-mailed links are built from the request's Host header");
+	return getFullPath($url);
 }
 
 function getFullPath($url) {

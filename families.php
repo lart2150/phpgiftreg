@@ -74,7 +74,7 @@ if ($action == "delete") {
 		exit;
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
 }
 else if ($action == "edit") {
@@ -90,7 +90,7 @@ else if ($action == "edit") {
 		}
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
 }
 else if ($action == "") {
@@ -104,7 +104,7 @@ else if ($action == "insert") {
 			$stmt->execute();
 		}
 		catch (PDOException $e) {
-			die("sql exception: " . $e->getMessage());
+			failWithError($e);
 		}
 		
 		header("Location: " . getFullPath("families.php?message=Family+added."));
@@ -122,7 +122,7 @@ else if ($action == "update") {
 			$stmt->execute();
 		}
 		catch (PDOException $e) {
-			die("sql exception: " . $e->getMessage());
+			failWithError($e);
 		}
 		
 		header("Location: " . getFullPath("families.php?message=Family+updated."));
@@ -146,7 +146,7 @@ else if ($action == "members") {
 		}
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
 	
 	header("Location: " . getFullPath("families.php?message=Members+changed."));
@@ -197,6 +197,6 @@ try {
 	$smarty->display('families.tpl');
 }
 catch (PDOException $e) {
-	die("sql exception: " . $e->getMessage());
+	failWithError($e);
 }
 ?>

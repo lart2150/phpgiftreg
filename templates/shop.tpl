@@ -21,10 +21,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="js/jquery-3.7.1.min.js"></script>
 	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<link href="lightbox/css/jquery.lightbox-0.5.css" rel="stylesheet">
-	<script src="lightbox/js/jquery.lightbox-0.5.min.js"></script>
+	<script src="js/giftreg.js"></script>
 
     <script language="JavaScript" type="text/javascript">
 		function printPage() {
@@ -32,12 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		}
 
 		$(document).ready(function() {
-			$('a[rel=lightbox]').lightBox({
-				imageLoading: 'lightbox/images/lightbox-ico-loading.gif',
-				imageBtnClose: 'lightbox/images/lightbox-btn-close.gif',
-				imageBtnPrev: 'lightbox/images/lightbox-btn-prev.gif',
-				imageBtnNext: 'lightbox/images/lightbox-btn-next.gif'
-			});
+			enable_image_viewer();
 			$('a[rel=popover]').removeAttr('href').popover();
 		});
 	</script>

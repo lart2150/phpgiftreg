@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="js/jquery-3.7.1.min.js"></script>
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 	<script src="js/jquery.validate.min.js"></script>
 	<script src="js/giftreg.js"></script>
@@ -52,8 +52,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="row">
 			<div class="span12">
 				<div class="well">
-					<p>Shortly, you will receive an e-mail with your new password.</p>
-					<p>Once you've received your password, click <a href="login.php">here</a> to login.</p>
+					<p>If that username has an e-mail address on file, you'll shortly receive an e-mail with a link to choose a new password.  The link works for one hour.</p>
+					<p>Your current password still works until you choose a new one.  <a href="login.php">Back to login</a></p>
 				</div>
 			</div>
 		</div>
@@ -72,8 +72,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									<span class="help-inline">{$error}</span>
 								{/if}
 								<p class="help-block">
-									Supply your username and click Submit.<br /> 
-									Your password will be reset and the new password will be sent to the e-mail address you have associated with your account.
+									Supply your username and click Submit.<br />
+									We'll e-mail a link to choose a new password to the address on your account.
 								</p>
 							</p>
 						</div>

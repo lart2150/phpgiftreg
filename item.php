@@ -45,7 +45,7 @@ if (isset($_REQUEST["itemid"]) && $_REQUEST["itemid"] != "") {
 		}
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
 }
 
@@ -153,7 +153,7 @@ if (!empty($_REQUEST["action"])) {
 			exit;
 		}
 		catch (PDOException $e) {
-			die("sql exception: " . $e->getMessage());
+			failWithError($e);
 		}
 	}
 	else if ($action == "edit") {

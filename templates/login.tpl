@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="js/jquery-3.7.1.min.js"></script>
 	<script src="bootstrap/js/bootstrap.min.js"></script>
 	<script src="js/jquery.validate.min.js"></script>
 	<script src="js/giftreg.js"></script>
@@ -58,8 +58,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 			<h1>Gift Registry</h1>
 		<form name="loginform" id="loginform" method="post" action="login.php" class="well form-horizontal">
 			<fieldset>
-				{if isset($username)}
+				{if isset($error)}
+					<div class="alert alert-error">{$error}</div>
+				{elseif isset($username)}
 					<div class="alert alert-error">Bad login.</div>
+				{elseif isset($message)}
+					<div class="alert alert-success">{$message}</div>
 				{/if}
 				<div class="control-group">
 					<label class="control-label" for="username">Username</label>

@@ -49,7 +49,7 @@ if (!empty($_POST["action"])) {
 			exit;
 		}
 		catch (PDOException $e) {
-			die("sql exception: " . $e->getMessage());
+			failWithError($e);
 		}
 	}
 	else if ($action == "save") {
@@ -79,7 +79,7 @@ if (!empty($_POST["action"])) {
 			exit;
 		}
 		catch (PDOException $e) {
-			die("sql exception: " . $e->getMessage());
+			failWithError($e);
 		}
 	}
 	else {
@@ -104,6 +104,6 @@ try {
 	}
 }
 catch (PDOException $e) {
-	die("sql exception: " . $e->getMessage());
+	failWithError($e);
 }
 ?>

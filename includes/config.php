@@ -45,6 +45,12 @@ function getGlobalOptions() {
 		/* The number of your items that show on each page. */
 		"items_per_page" => 10,
 
+		/* The public address of this site, used for links in e-mails (password
+			reset).  Set it to avoid relying on the client-supplied Host header.
+			Example: "https://gifts.example.com" (or "https://example.com/giftreg").
+		*/
+		"base_url" => "",
+
 		/* The e-mail From: header. */
 		"email_from" => "phpgift@engert.us",
 

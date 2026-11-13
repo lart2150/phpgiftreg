@@ -32,8 +32,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 					<li><a href="profile.php">Update Profile</a></li>
 					<li><a href="event.php">Manage Events</a></li>
 					{if $isadmin}
-						<li class="dropdown">
-							<a class="dropdown-toggle" href="#" data-toggle="dropdown">
+						<li class="dropdown" id="adminmenu">
+							<a class="dropdown-toggle" href="#" data-toggle="dropdown" data-target="#adminmenu">
 								Admin
 								<b class="caret"></b>
 							</a>

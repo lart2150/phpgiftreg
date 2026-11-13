@@ -31,18 +31,29 @@ if (!empty($_POST["username"])) {
 
 	try {
 		$dbh = $smarty->dbh();
-		$stmt = $dbh->prepare("SELECT userid, fullname, admin, password FROM {$opt["table_prefix"]}users WHERE username = ? AND approved = 1");
-		$stmt->bindParam(1, $username, PDO::PARAM_STR);
-
-		$stmt->execute();
 		$row = false;
-		while ($candidate = $stmt->fetch()) {
-			if (verifyPassword($password, $candidate["password"], $opt, $needsRehash)) {
-				$row = $candidate;
-				break;
+		if (loginIsThrottled($username, $dbh, $opt)) {
+			// don't even check the password while throttled.
+			list(, , $lockoutMinutes) = loginThrottleLimits($opt);
+			$smarty->assign('error', "Too many failed login attempts.  Please wait $lockoutMinutes minutes and try again.");
+		}
+		else {
+			$stmt = $dbh->prepare("SELECT userid, fullname, admin, password FROM {$opt["table_prefix"]}users WHERE username = ? AND approved = 1");
+			$stmt->bindParam(1, $username, PDO::PARAM_STR);
+
+			$stmt->execute();
+			while ($candidate = $stmt->fetch()) {
+				if (verifyPassword($password, $candidate["password"], $opt, $needsRehash)) {
+					$row = $candidate;
+					break;
+				}
+			}
+			if (!$row) {
+				recordLoginFailure($username, $dbh, $opt);
 			}
 		}
 		if ($row) {
+			clearLoginFailures($username, $dbh, $opt);
 			if ($needsRehash) {
 				// upgrade legacy (MD5/SHA1/plaintext) or outdated hashes to password_hash().
 				// a failure here must never block the login itself.
@@ -84,13 +95,16 @@ if (!empty($_POST["username"])) {
 		}
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
 
 	$smarty->assign('username', $username);
 	$smarty->display('login.tpl');
 }
 else {
+	if (getParam("reset") == "1") {
+		$smarty->assign('message', "Your password has been changed.  Please log in.");
+	}
 	$smarty->display('login.tpl');
 }
 ?>

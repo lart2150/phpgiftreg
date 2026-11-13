@@ -18,50 +18,62 @@ require_once(dirname(__FILE__) . "/includes/MySmarty.class.php");
 $smarty = new MySmarty();
 $opt = $smarty->opt();
 
-if (isset($_POST["action"]) && $_POST["action"] == "forgot") {
+if (postParam("action") == "forgot") {
 	$username = postParam("username");
 
 	try {
-		// make sure that username is valid 
-		$stmt = $smarty->dbh()->prepare("SELECT email FROM {$opt["table_prefix"]}users WHERE username = ?");
+		$dbh = $smarty->dbh();
+		$stmt = $dbh->prepare("SELECT userid, email FROM {$opt["table_prefix"]}users WHERE username = ? AND approved = 1");
 		$stmt->bindParam(1, $username, PDO::PARAM_STR);
-			
 		$stmt->execute();
-		if ($row = $stmt->fetch()) {
-			$email = $row["email"];
-		
-			if ($email == "")
-				$error = "The username '" . $username . "' does not have an e-mail address, so the password could not be sent.";
-			else {
-				$pwd = generatePassword($opt);
-				$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}users SET password = ? WHERE username = ?");
-				$stmt->bindValue(1, hashPassword($pwd), PDO::PARAM_STR);
-				$stmt->bindParam(2, $username, PDO::PARAM_STR);
+		$row = $stmt->fetch();
 
+		if ($row && isValidEmail($row["email"])) {
+			// at most one reset e-mail per account every 5 minutes.
+			$stmt = $dbh->prepare("SELECT COUNT(*) FROM {$opt["table_prefix"]}password_resets WHERE userid = ? AND created > NOW() - INTERVAL 5 MINUTE");
+			$stmt->bindValue(1, (int) $row["userid"], PDO::PARAM_INT);
+			$stmt->execute();
+			if ($stmt->fetchColumn() == 0) {
+				// the password is NOT changed here; the user picks a new one via the
+				// e-mailed link.  only a hash of the token is stored.
+				$token = bin2hex(random_bytes(32));
+				$stmt = $dbh->prepare("REPLACE INTO {$opt["table_prefix"]}password_resets(userid, token_hash, created, expires) VALUES(?, ?, NOW(), NOW() + INTERVAL 1 HOUR)");
+				$stmt->bindValue(1, (int) $row["userid"], PDO::PARAM_INT);
+				$stmt->bindValue(2, hash("sha256", $token), PDO::PARAM_STR);
 				$stmt->execute();
-				mail(
-					$email,
+
+				$sent = mail(
+					$row["email"],
 					"Gift Registry password reset",
-					"Your Gift Registry account information:\r\n" . 
-						"Your username is '" . $username . "' and your new password is '$pwd'.",
-					"From: {$opt["email_from"]}\r\nReply-To: {$opt["email_reply_to"]}\r\nX-Mailer: {$opt["email_xmailer"]}\r\n"
-				) or die("Mail not accepted for $email");
+					"Someone (hopefully you) asked to reset the password for the Gift Registry account '" . stripNewlines($username) . "'.
+
+" .
+						"To choose a new password, open this link within the next hour:
+" .
+						getSiteUrl("reset.php?token=" . $token, $opt) . "
+
+" .
+						"If you didn't ask for this, ignore this e-mail; your password has not been changed.",
+					"From: {$opt["email_from"]}
+Reply-To: {$opt["email_reply_to"]}
+X-Mailer: {$opt["email_xmailer"]}
+"
+				);
+				if (!$sent) {
+					error_log("phpgiftreg: password reset mail for userid {$row["userid"]} was not accepted");
+				}
 			}
 		}
-		else {
-			$error = "The username '" . $username . "' could not be found.";
-		}
-
-		if (!empty($error)) {
-			$smarty->assign('error', $error);
-		}
-		$smarty->assign('action', postParam("action"));
-		$smarty->assign('username', $username);
-		$smarty->display('forgot.tpl');
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
+
+	// same response whether or not the account exists, so the form can't be
+	// used to discover usernames.
+	$smarty->assign('action', 'forgot');
+	$smarty->assign('error', '');
+	$smarty->display('forgot.tpl');
 }
 else {
 	$smarty->display('forgot.tpl');

@@ -59,7 +59,7 @@ if (isset($eventid)) {
 			die("Nice try! (That's not your event.)");
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
 }
 
@@ -100,7 +100,7 @@ if ($action == "delete") {
 		exit;
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
 }
 else if ($action == "edit") {
@@ -118,7 +118,7 @@ else if ($action == "edit") {
 		$systemevent = ($row["userid"] == "");
 	}
 	catch (PDOException $e) {
-		die("sql exception: " . $e->getMessage());
+		failWithError($e);
 	}
 }
 else if ($action == "") {
@@ -142,7 +142,7 @@ else if ($action == "insert") {
 			exit;
 		}
 		catch (PDOException $e) {
-			die("sql exception: " . $e->getMessage());
+			failWithError($e);
 		}
 	}
 }
@@ -167,7 +167,7 @@ else if ($action == "update") {
 			exit;
 		}
 		catch (PDOException $e) {
-			die("sql exception: " . $e->getMessage());
+			failWithError($e);
 		}
 	}
 }
@@ -223,6 +223,6 @@ try {
 	$smarty->display('event.tpl');
 }
 catch (PDOException $e) {
-	die("sql exception: " . $e->getMessage());
+	failWithError($e);
 }
 ?>
