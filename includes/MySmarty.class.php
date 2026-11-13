@@ -16,11 +16,16 @@ class MySmarty extends \Smarty\Smarty {
 	}
 
 	public function dbh() {
-		$opt = $this->opt();
-		return new PDO(
-			$opt["pdo_connection_string"],
-			$opt["pdo_username"],
-			$opt["pdo_password"]);
+		// one connection per request (this is called dozens of times per page).
+		static $dbh = null;
+		if ($dbh === null) {
+			$opt = $this->opt();
+			$dbh = new PDO(
+				$opt["pdo_connection_string"],
+				$opt["pdo_username"],
+				$opt["pdo_password"]);
+		}
+		return $dbh;
 	}
 
 	public function opt() {

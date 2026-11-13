@@ -88,11 +88,20 @@ function requireCsrf() {
 }
 
 /* Require a CSRF token when the request carries an action other than the
-	given read-only ones (e.g. "edit" or "add", which only display a form). */
+	given read-only ones (e.g. "edit" or "add", which only display a form).
+	Both the query string and the POST body are checked: pages read the action
+	from one or the other, and in $_REQUEST a POSTed value would mask the
+	query-string action (e.g. POST action= to admin.php?action=approve). */
 function requireCsrfForAction($readOnlyActions = array()) {
-	$action = isset($_REQUEST["action"]) ? $_REQUEST["action"] : "";
-	if ($action !== "" && !in_array($action, $readOnlyActions, true)) {
-		requireCsrf();
+	foreach (array($_GET, $_POST) as $source) {
+		if (!isset($source["action"])) {
+			continue;
+		}
+		$action = $source["action"];
+		if (!is_string($action) || ($action !== "" && !in_array($action, $readOnlyActions, true))) {
+			requireCsrf();
+			return;
+		}
 	}
 }
 
@@ -271,7 +280,10 @@ function getExistingQuantity($itemid, $userid, $bought, $dbh, $opt) {
 
 function processSubscriptions($publisher, $action, $itemdesc, $dbh, $opt) {
 	// join the users table as a cheap way to get the guy's name without having to pass it in.
-	$stmt = $dbh->prepare("SELECT subscriber, fullname FROM {$opt["table_prefix"]}subscriptions sub INNER JOIN {$opt["table_prefix"]}users u ON u.userid = sub.publisher WHERE publisher = ? AND (last_notified IS NULL OR DATE_ADD(last_notified, INTERVAL " . (int) $opt["notify_threshold_minutes"] . " MINUTE) < NOW())");
+	// join shoppers so only people still approved to shop for the publisher are notified.
+	$stmt = $dbh->prepare("SELECT subscriber, fullname FROM {$opt["table_prefix"]}subscriptions sub INNER JOIN {$opt["table_prefix"]}users u ON u.userid = sub.publisher " .
+		"INNER JOIN {$opt["table_prefix"]}shoppers s ON s.shopper = sub.subscriber AND s.mayshopfor = sub.publisher AND s.pending = 0 " .
+		"WHERE publisher = ? AND (last_notified IS NULL OR DATE_ADD(last_notified, INTERVAL " . (int) $opt["notify_threshold_minutes"] . " MINUTE) < NOW())");
 	$stmt->bindParam(1, $publisher, PDO::PARAM_INT);
 	$stmt->execute();
 

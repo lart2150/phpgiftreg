@@ -14,7 +14,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 function getGlobalOptions() {
-	return array(
+	$opt = array(
 		/* The PDO connection string.
 			http://www.php.net/manual/en/pdo.connections.php
 		*/
@@ -140,5 +140,15 @@ function getGlobalOptions() {
 		*/
 		"notify_threshold_minutes" => 60
 	);
+
+	/* Site-specific settings, such as the database password, can live in
+		includes/config.local.php (not tracked by git), which returns an array
+		of overrides, e.g.:  return array("pdo_password" => "secret");
+	*/
+	$local = dirname(__FILE__) . "/config.local.php";
+	if (file_exists($local)) {
+		$opt = array_merge($opt, (array) include $local);
+	}
+	return $opt;
 }
 ?>

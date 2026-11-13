@@ -105,7 +105,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 							<a rel="lightbox" href="{$opt.image_subdir}/{$row.image_filename}" title="{$row.description}"><img src="images/image.png" border="0" alt="Image" /></a>
 						{/if}
 					</td>
-					<td>{$row.category|default:"&nbsp;"}</td>
+					<td>{if $row.category != ''}{$row.category}{else}&nbsp;{/if}</td>
 					<td align="right">{$row.price nofilter}</td>
 					<td>{$row.source}</td>
 					{if $row.quantity > 1}

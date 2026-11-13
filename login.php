@@ -18,11 +18,14 @@ require_once(dirname(__FILE__) . "/includes/MySmarty.class.php");
 $smarty = new MySmarty();
 $opt = $smarty->opt();
 
-if (isset($_GET["action"])) {
-	if ($_GET["action"] == "logout") {
-		session_start();
-		session_destroy();
+if (getParam("action") == "logout") {
+	session_start();
+	// logout links carry the CSRF token, so other sites can't log people out.
+	if (isset($_SESSION["userid"]) && !hash_equals(csrfToken(), getParam("csrf"))) {
+		header("Location: " . getFullPath("index.php"));
+		exit;
 	}
+	session_destroy();
 }
 
 if (!empty($_POST["username"])) {

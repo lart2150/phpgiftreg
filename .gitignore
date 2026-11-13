@@ -7,3 +7,6 @@ templates_c/*
 item_images/*
 !.gitkeep
 !item_images/.htaccess
+
+# Local settings and secrets
+includes/config.local.php

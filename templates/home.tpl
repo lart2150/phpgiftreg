@@ -106,7 +106,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 							{/if}
 						</td>
 						<td nowrap>{$row.rendered nofilter}</td>
-						<td>{$row.category|default:"&nbsp;"}</td>
+						<td>{if $row.category != ''}{$row.category}{else}&nbsp;{/if}</td>
 						<td align="right">{$row.price nofilter}</td>
 						<td align="right" nowrap>
 							<a href="receive.php?csrf={$csrf}&itemid={$row.itemid}"><img alt="Mark Item Received" src="images/return.png" border="0" title="Mark Item Received" /></a>&nbsp;

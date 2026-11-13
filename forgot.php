@@ -45,19 +45,11 @@ if (postParam("action") == "forgot") {
 				$sent = mail(
 					$row["email"],
 					"Gift Registry password reset",
-					"Someone (hopefully you) asked to reset the password for the Gift Registry account '" . stripNewlines($username) . "'.
-
-" .
-						"To choose a new password, open this link within the next hour:
-" .
-						getSiteUrl("reset.php?token=" . $token, $opt) . "
-
-" .
+					"Someone (hopefully you) asked to reset the password for the Gift Registry account '" . stripNewlines($username) . "'.\r\n\r\n" .
+						"To choose a new password, open this link within the next hour:\r\n" .
+						getSiteUrl("reset.php?token=" . $token, $opt) . "\r\n\r\n" .
 						"If you didn't ask for this, ignore this e-mail; your password has not been changed.",
-					"From: {$opt["email_from"]}
-Reply-To: {$opt["email_reply_to"]}
-X-Mailer: {$opt["email_xmailer"]}
-"
+					"From: {$opt["email_from"]}\r\nReply-To: {$opt["email_reply_to"]}\r\nX-Mailer: {$opt["email_xmailer"]}\r\n"
 				);
 				if (!$sent) {
 					error_log("phpgiftreg: password reset mail for userid {$row["userid"]} was not accepted");
