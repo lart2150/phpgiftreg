@@ -55,7 +55,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		{if isset($message)}
 			<div class="row">
 				<div class="span12">
-					<div class="alert alert-block">{$message|escape:'htmlall'}</div>
+					<div class="alert alert-block">{$message}</div>
 				</div>
 			</div>
 		{/if}
@@ -86,11 +86,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<tbody>
 							{foreach from=$categories item=row}
 								<tr>
-									<td>{$row.category|escape:'htmlall'}</td>
+									<td>{$row.category}</td>
 									<td>{$row.itemsin}</td>
 									<td>
-										<a href="categories.php?action=edit&categoryid={$row.categoryid}#catform"><img src="images/pencil.png" border="0" title="Edit Category" alt="Edit Category" /></a>
-										<a href="categories.php?action=delete&categoryid={$row.categoryid}"><img src="images/bin.png" border="0" title="Delete Category" alt="Delete Category" /></a>
+										<a href="categories.php?csrf={$csrf}&action=edit&categoryid={$row.categoryid}#catform"><img src="images/pencil.png" border="0" title="Edit Category" alt="Edit Category" /></a>
+										<a href="categories.php?csrf={$csrf}&action=delete&categoryid={$row.categoryid}"><img src="images/bin.png" border="0" title="Delete Category" alt="Delete Category" /></a>
 									</td>
 								</tr>
 							{/foreach}
@@ -105,6 +105,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="row">
 			<div class="span12">
 				<form name="categoryform" id="categoryform" method="get" action="categories.php" class="well form-horizontal">
+					<input type="hidden" name="csrf" value="{$csrf}">
 					{if $action == "edit" || (isset($haserror) && $action == "update")}
 						<input type="hidden" name="categoryid" value="{$categoryid}">
 						<input type="hidden" name="action" value="update">
@@ -112,13 +113,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<input type="hidden" name="action" value="insert">
 					{/if}
 					<fieldset>
-						<legend>{if $action == "edit"}Edit Category '{$category|escape:'htmlall'}'{else}Add Category{/if}</legend>
+						<legend>{if $action == "edit"}Edit Category '{$category}'{else}Add Category{/if}</legend>
 						<div class="control-group {if isset($category_error)}warning{/if}">
 							<label class="control-label" for="category">Category name</label>
 							<div class="controls">
-								<input id="category" name="category" type="text" class="input-xlarge" value="{$category|escape:'htmlall'}" maxlength="255">
+								<input id="category" name="category" type="text" class="input-xlarge" value="{$category}" maxlength="255">
 								{if isset($category_error)}
-									<span class="help-inline">{$category_error|escape:'htmlall'}</span>
+									<span class="help-inline">{$category_error}</span>
 								{/if}
 							</div>
 						</div>

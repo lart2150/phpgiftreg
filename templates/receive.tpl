@@ -64,6 +64,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="row">
 			<div class="span8 offset2">
 <form name="receiverform" id="receiverform" method="get" action="receive.php" class="well form-horizontal">
+	<input type="hidden" name="csrf" value="{$csrf}">
 	<input type="hidden" name="action" value="receive">
 	<input type="hidden" name="itemid" value="{$itemid}">
 	<fieldset>
@@ -74,7 +75,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 				<select id="buyer" name="buyer" class="input-xlarge">
 					<option value="">(select buyer)</option>
 					{foreach from=$buyers item=row}
-						<option value="{$row.userid}">{$row.fullname|escape:'htmlall'}</option>
+						<option value="{$row.userid}">{$row.fullname}</option>
 					{/foreach}
 				</select>
 			</div>

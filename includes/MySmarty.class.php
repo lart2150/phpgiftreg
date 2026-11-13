@@ -8,6 +8,10 @@ class MySmarty extends Smarty {
 	public function __construct() {
 		parent::__construct();
 
+		// HTML-escape every {$var} by default.  Templates that intentionally
+		// output trusted HTML must use {$var nofilter}.
+		$this->escape_html = true;
+
 		date_default_timezone_set("GMT+0");
 	}
 
@@ -31,6 +35,7 @@ class MySmarty extends Smarty {
 		$isadmin = isset($_SESSION['admin']) ? $_SESSION['admin'] : false;
 		parent::assign('isadmin', $isadmin);
 		parent::assign('opt', $this->opt());
+		parent::assign('csrf', function_exists('csrfToken') ? csrfToken() : '');
 		parent::display($t, $cache_id, $compile_id, $parent);
 	}
 }

@@ -67,7 +67,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="row">
 			<div class="span12">
     			<div class="alert alert-block">
-					{$message|escape:'htmlall'}
+					{$message}
 				</div>
 			</div>
 		</div>
@@ -105,7 +105,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						{foreach from=$events item=row}
 							<tr>
 								<td>{$row.eventdate}</td>
-								<td>{$row.description|escape:'htmlall'}</td>
+								<td>{$row.description}</td>
 								<td>{if $row.recurring}Yes{else}No{/if}</td>
 								{if $isadmin}
 									<td>
@@ -113,7 +113,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									</td>
 								{/if}
 								<td>
-									<a href="event.php?action=edit&eventid={$row.eventid}"><img alt="Edit Event" src="images/pencil.png" border="0" title="Edit Event" /></a>&nbsp;<a href="event.php?action=delete&eventid={$row.eventid}"><img alt="Delete Event" src="images/bin.png" border="0" title="Delete Event" /></a>
+									<a href="event.php?csrf={$csrf}&action=edit&eventid={$row.eventid}"><img alt="Edit Event" src="images/pencil.png" border="0" title="Edit Event" /></a>&nbsp;<a href="event.php?csrf={$csrf}&action=delete&eventid={$row.eventid}"><img alt="Delete Event" src="images/bin.png" border="0" title="Delete Event" /></a>
 								</td>
 							</tr>
 						{/foreach}
@@ -126,6 +126,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	<div class="row">
 		<div class="span8 offset2">
 			<form name="eventform" id="eventform" method="get" action="event.php" class="well form-horizontal">
+				<input type="hidden" name="csrf" value="{$csrf}">
 				<fieldset>
 					<legend>Event Details</legend>
 					{if $action == "edit" || (isset($haserror) && $action == "update")}
@@ -137,7 +138,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 					<div class="control-group {if isset($description_error)}warning{/if}">
 						<label class="control-label" for="description">Description</label>
 						<div class="controls">
-							<input id="description" name="description" type="text" value="{$description|escape:'htmlall'}" class="input-xlarge" maxlength="255" placeholder="Description">
+							<input id="description" name="description" type="text" value="{$description}" class="input-xlarge" maxlength="255" placeholder="Description">
 							{if isset($description_error)}
 								<span class="help-inline">{$description_error}</span>
 							{/if}
@@ -146,7 +147,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 					<div class="control-group {if isset($eventdate_error)}warning{/if}">
 						<label class="control-label" for="eventdate">Event date</label>
 						<div class="controls">
-							<input id="eventdate" name="eventdate" type="text" value="{$eventdate|escape:'htmlall'}" class="input-xlarge" placeholder="mm/dd/yyyy" data-date-format="mm/dd/yyyy">
+							<input id="eventdate" name="eventdate" type="text" value="{$eventdate}" class="input-xlarge" placeholder="mm/dd/yyyy" data-date-format="mm/dd/yyyy">
 							<p class="help-block">mm/dd/yyyy</p>
 							{if isset($eventdate_error)}
 								<span class="help-inline">{$eventdate_error}</span>

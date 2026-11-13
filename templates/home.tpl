@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Gift Registry - Home Page for {$fullname|escape:'htmlall'}</title>
+	<title>Gift Registry - Home Page for {$fullname}</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
@@ -61,7 +61,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	{if isset($message)}
 		<div class="row">
 			<div class="span12">
-				<div class="alert alert-block">{$message|escape:'htmlall'}</div>
+				<div class="alert alert-block">{$message}</div>
 			</div>
 		</div>
 	{/if}
@@ -100,24 +100,24 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 				{foreach from=$myitems item=row}
 					<tr valign="top">
 						<td>
-							{$row.description|escape:'htmlall'}
+							{$row.description}
 							 {if $row.comment != ''}
-								<a class="btn btn-small" rel="popover" href="#" data-placement="right" data-original-title="Comment" data-content="{$row.comment|escape:'htmlall'}">...</a>
+								<a class="btn btn-small" rel="popover" href="#" data-placement="right" data-original-title="Comment" data-content="{$row.comment}">...</a>
 							{/if}
 							{if $row.url != ''}
-								<a href="{$row.url|escape:'htmlall'}" target="_blank"><img src="images/link.png" border="0" alt="URL" title="URL"></a>
+								<a href="{$row.url}" target="_blank"><img src="images/link.png" border="0" alt="URL" title="URL"></a>
 							{/if}
 							{if $row.image_filename != '' && $opt.allow_images}
-								<a rel="lightbox" href="{$opt.image_subdir}/{$row.image_filename}" title="{$row.description|escape:'htmlall'}"><img src="images/image.png" border="0" alt="Image" /></a>
+								<a rel="lightbox" href="{$opt.image_subdir}/{$row.image_filename}" title="{$row.description}"><img src="images/image.png" border="0" alt="Image" /></a>
 							{/if}
 						</td>
-						<td nowrap>{$row.rendered}</td>
+						<td nowrap>{$row.rendered nofilter}</td>
 						<td>{$row.category|default:"&nbsp;"}</td>
-						<td align="right">{$row.price}</td>
+						<td align="right">{$row.price nofilter}</td>
 						<td align="right" nowrap>
-							<a href="receive.php?itemid={$row.itemid}"><img alt="Mark Item Received" src="images/return.png" border="0" title="Mark Item Received" /></a>&nbsp;
-							<a href="item.php?action=edit&itemid={$row.itemid}"><img alt="Edit Item" src="images/pencil.png" border="0" title="Edit Item" /></a>&nbsp;
-							<a rel="confirmitemdelete" data-content="{$row.description|escape:'htmlall'}" href="item.php?action=delete&itemid={$row.itemid}"><img alt="Delete Item" src="images/bin.png" border="0" alt="Delete" title="Delete Item" /></a>
+							<a href="receive.php?csrf={$csrf}&itemid={$row.itemid}"><img alt="Mark Item Received" src="images/return.png" border="0" title="Mark Item Received" /></a>&nbsp;
+							<a href="item.php?csrf={$csrf}&action=edit&itemid={$row.itemid}"><img alt="Edit Item" src="images/pencil.png" border="0" title="Edit Item" /></a>&nbsp;
+							<a rel="confirmitemdelete" data-content="{$row.description}" href="item.php?csrf={$csrf}&action=delete&itemid={$row.itemid}"><img alt="Delete Item" src="images/bin.png" border="0" alt="Delete" title="Delete Item" /></a>
 						</td>
 					</tr>
 				{/foreach}
@@ -138,7 +138,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 				</ul>
 			</div>
 		{/if}
-		<h5><a href="item.php?action=add">Add a new item</a></h5>
+		<h5><a href="item.php?csrf={$csrf}&action=add">Add a new item</a></h5>
 		</div>
 	</section>
 	<section id="otherstuff">
@@ -159,23 +159,23 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 				{foreach from=$shoppees item=row}
 					<tr>
 						<td>
-							<a href="shop.php?shopfor={$row.userid}">{$row.fullname|escape:'htmlall'}</a>
+							<a href="shop.php?shopfor={$row.userid}">{$row.fullname}</a>
 							{if $row.comment != ''}
-								<a class="btn btn-small" rel="popover" href="#" data-placement="right" data-original-title="Comment" data-content="{$row.comment|escape:'htmlall'}">...</a>
+								<a class="btn btn-small" rel="popover" href="#" data-placement="right" data-original-title="Comment" data-content="{$row.comment}">...</a>
 							{/if}
 						</td>
 						<td align="right">{$row.list_stamp}</td>
 						<td align="right">{$row.itemcount}</td>
 						<td align="right" nowrap>
 							{if $row.itemcount > 0}
-								<a href="shop.php?shopfor={$row.userid}"><img alt="Shop for {$row.fullname|escape:'htmlall'}" src="images/store.png" border="0" title="Shop for {$row.fullname|escape:'htmlall'}"></a>
+								<a href="shop.php?shopfor={$row.userid}"><img alt="Shop for {$row.fullname}" src="images/store.png" border="0" title="Shop for {$row.fullname}"></a>
 							{/if}
 							{if !$row.is_unsubscribed}
-								<a href="index.php?action=unsubscribe&shoppee={$row.userid}"><img alt="Unsubscribe from {$row.fullname|escape:'htmlall'}'s updates" src="images/delete.png" border="0" title="Unsubscribe from {$row.fullname|escape:'htmlall'}'s updates"></a>
+								<a href="index.php?csrf={$csrf}&action=unsubscribe&shoppee={$row.userid}"><img alt="Unsubscribe from {$row.fullname}'s updates" src="images/delete.png" border="0" title="Unsubscribe from {$row.fullname}'s updates"></a>
 							{else}
-								<a href="index.php?action=subscribe&shoppee={$row.userid}"><img alt="Subscribe to {$row.fullname|escape:'htmlall'}'s updates" src="images/podcast.png" border="0" title="Subscribe to {$row.fullname|escape:'htmlall'}'s updates"></a>
+								<a href="index.php?csrf={$csrf}&action=subscribe&shoppee={$row.userid}"><img alt="Subscribe to {$row.fullname}'s updates" src="images/podcast.png" border="0" title="Subscribe to {$row.fullname}'s updates"></a>
 							{/if}
-							<a rel="confirmunshop" data-content="{$row.fullname|escape:'htmlall'}" href="index.php?action=cancel&shopfor={$row.userid}"><img src="images/bin.png" border="0" alt="Don't shop for {$row.fullname|escape:'htmlall'} anymore" title="Don't shop for {$row.fullname|escape:'htmlall'} anymore" /></a>
+							<a rel="confirmunshop" data-content="{$row.fullname}" href="index.php?csrf={$csrf}&action=cancel&shopfor={$row.userid}"><img src="images/bin.png" border="0" alt="Don't shop for {$row.fullname} anymore" title="Don't shop for {$row.fullname} anymore" /></a>
 						</td>
 					</tr>
 				{/foreach}
@@ -196,12 +196,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<tbody>
 						{foreach from=$prospects item=row}
 							<tr>
-								<td>{$row.fullname|escape:'htmlall'}</td>
+								<td>{$row.fullname}</td>
 								<td align="right" nowrap>
 									{if $row.pending}
-										<a href="index.php?action=cancel&shopfor={$row.userid}"><img src="images/delete.png" border="0" alt="Cancel" title="Cancel" /></a>
+										<a href="index.php?csrf={$csrf}&action=cancel&shopfor={$row.userid}"><img src="images/delete.png" border="0" alt="Cancel" title="Cancel" /></a>
 									{else}
-										<a href="index.php?action=request&shopfor={$row.userid}">
+										<a href="index.php?csrf={$csrf}&action=request&shopfor={$row.userid}">
 											{if $opt.shop_requires_approval}
 												<img src="images/cloud-add.png" border="0" alt="Request" title="Request" />
 											{else}
@@ -236,10 +236,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						{foreach from=$messages item=row}
 							<tr>
 								<td>{$row.created}</td>
-								<td>{$row.fullname|escape:'htmlall'}</td>
-								<td>{$row.message|escape:'htmlall'}</td>
+								<td>{$row.fullname}</td>
+								<td>{$row.message}</td>
 								<td align="right">
-									<a href="index.php?action=ack&messageid={$row.messageid}"><img alt="Acknowledge" title="Acknowledge" src="images/delete.png" border="0"></a>
+									<a href="index.php?csrf={$csrf}&action=ack&messageid={$row.messageid}"><img alt="Acknowledge" title="Acknowledge" src="images/delete.png" border="0"></a>
 								</td>
 							</tr>
 						{/foreach}
@@ -267,10 +267,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									{if $row.fullname == ''}
 										<i>System event</i>
 									{else}
-										{$row.fullname|escape:'htmlall'}
+										{$row.fullname}
 									{/if}
 								</td>
-								<td>{$row.eventname|escape:'htmlall'}</td>
+								<td>{$row.eventname}</td>
 								<td>{$row.date}</td>
 								<td>
 									{if $row.daysleft == 0}
@@ -302,10 +302,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									<tbody>
 										{foreach from=$pending item=row}
 											<tr>
-												<td>{$row.fullname|escape:'htmlall'}</td>
+												<td>{$row.fullname}</td>
 												<td align="right">
-													<a href="index.php?action=approve&shopper={$row.userid}">Approve</a>&nbsp;/
-													<a href="index.php?action=decline&shopper={$row.userid}">Decline</a>
+													<a href="index.php?csrf={$csrf}&action=approve&shopper={$row.userid}">Approve</a>&nbsp;/
+													<a href="index.php?csrf={$csrf}&action=decline&shopper={$row.userid}">Decline</a>
 												</td>
 											</tr>
 										{/foreach}
@@ -329,11 +329,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									<tbody>
 										{foreach from=$approval item=row}
 											<tr>
-												<td>{$row.fullname|escape:'htmlall'} &lt;<a href="mailto:{$row.email|escape:'htmlall'}">{$row.email|escape:'htmlall'}</a>&gt;</td>
-												<td>{$row.familyname|escape:'htmlall'}</td>
+												<td>{$row.fullname} &lt;<a href="mailto:{$row.email}">{$row.email}</a>&gt;</td>
+												<td>{$row.familyname}</td>
 												<td align="right">
-													<a href="admin.php?action=approve&userid={$row.userid}&familyid={$row.initialfamilyid}">Approve</a>&nbsp;/
-													<a href="admin.php?action=reject&userid={$row.userid}">Reject</a>
+													<a href="admin.php?csrf={$csrf}&action=approve&userid={$row.userid}&familyid={$row.initialfamilyid}">Approve</a>&nbsp;/
+													<a href="admin.php?csrf={$csrf}&action=reject&userid={$row.userid}">Reject</a>
 												</td>
 											</tr>
 										{/foreach}

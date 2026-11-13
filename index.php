@@ -27,6 +27,9 @@ else {
 	$userid = $_SESSION["userid"];
 }
 
+// state-changing requests must carry the per-session CSRF token.
+requireCsrfForAction();
+
 if (!empty($_GET["message"])) {
 	$message = $_GET["message"];
 }
@@ -46,8 +49,9 @@ else {
 if (!empty($_GET["action"])) {
 	$action = $_GET["action"];
 	if ($action == "ack") {
-		$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}messages SET isread = 1 WHERE messageid = ?");
+		$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}messages SET isread = 1 WHERE messageid = ? AND recipient = ?");
 		$stmt->bindValue(1, (int) $_GET["messageid"], PDO::PARAM_INT);
+		$stmt->bindParam(2, $userid, PDO::PARAM_INT);
 		$stmt->execute();
 	}
 	else if ($action == "approve") {

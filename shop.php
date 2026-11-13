@@ -27,10 +27,24 @@ else {
 	$userid = $_SESSION["userid"];
 }
 
+// state-changing requests must carry the per-session CSRF token.
+requireCsrfForAction();
+
 $action = "";
 if (!empty($_GET["action"])) {
 	$action = $_GET["action"];
 	$itemid = (int) $_GET["itemid"];
+
+	// the item must belong to someone this user is approved to shop for.
+	$stmt = $smarty->dbh()->prepare("SELECT userid FROM {$opt["table_prefix"]}items WHERE itemid = ?");
+	$stmt->bindParam(1, $itemid, PDO::PARAM_INT);
+	$stmt->execute();
+	$itemowner = $stmt->fetchColumn();
+	if ($itemowner === false || $itemowner == $userid || !canShopFor($userid, $itemowner, $smarty->dbh(), $opt)) {
+		http_response_code(403);
+		die("Nice try! (You can't shop for that item.)");
+	}
+
 	if ($action == "reserve") {
 		adjustAllocQuantity($itemid,$userid,0,+1, $smarty->dbh(), $smarty->opt());
 	}

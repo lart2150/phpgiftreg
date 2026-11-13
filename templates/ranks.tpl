@@ -63,7 +63,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		{if isset($message)}
 			<div class="row">
 				<div class="span12">
-					<div class="alert alert-block">{$message|escape:'htmlall'}</div>
+					<div class="alert alert-block">{$message}</div>
 				</div>
 			</div>
 		{/if}
@@ -83,14 +83,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<tbody>
 							{foreach from=$ranks item=row}
 								<tr>
-									<td>{$row.title|escape:'htmlall'}</td>
-									<td>{$row.rendered}</td>
+									<td>{$row.title}</td>
+									<td>{$row.rendered nofilter}</td>
 									<td>{$row.rankorder}</td>
 									<td>
-										<a href="ranks.php?action=edit&ranking={$row.ranking}#rankform"><img src="images/pencil.png" border="0" alt="Edit Rank" title="Edit Rank" /></a>
-										<a href="ranks.php?action=delete&ranking={$row.ranking}"><img src="images/bin.png" border="0" alt="Delete Rank" title="Delete Rank" /></a>
-										<a href="ranks.php?action=promote&ranking={$row.ranking}&rankorder={$row.rankorder}"><img src="images/arrow-up.png" border="0" alt="Promote" title="Promote" /></a>
-										<a href="ranks.php?action=demote&ranking={$row.ranking}&rankorder={$row.rankorder}"><img src="images/arrow-down.png" border="0" alt="Demote" title="Demote" /></a>
+										<a href="ranks.php?csrf={$csrf}&action=edit&ranking={$row.ranking}#rankform"><img src="images/pencil.png" border="0" alt="Edit Rank" title="Edit Rank" /></a>
+										<a href="ranks.php?csrf={$csrf}&action=delete&ranking={$row.ranking}"><img src="images/bin.png" border="0" alt="Delete Rank" title="Delete Rank" /></a>
+										<a href="ranks.php?csrf={$csrf}&action=promote&ranking={$row.ranking}&rankorder={$row.rankorder}"><img src="images/arrow-up.png" border="0" alt="Promote" title="Promote" /></a>
+										<a href="ranks.php?csrf={$csrf}&action=demote&ranking={$row.ranking}&rankorder={$row.rankorder}"><img src="images/arrow-down.png" border="0" alt="Demote" title="Demote" /></a>
 									</td>
 								</tr>
 							{/foreach}
@@ -104,7 +104,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<a name="rankform">
 		<div class="row">
 			<div class="span12">
-				<form name="theform" id="theform" method="get" action="ranks.php" class="well form-horizontal">	
+				<form name="theform" id="theform" method="get" action="ranks.php" class="well form-horizontal">
+					<input type="hidden" name="csrf" value="{$csrf}">	
 					{if $action == "edit" || (isset($haserror) && $action == "update")}
 						<input type="hidden" name="ranking" value="{$ranking}">
 						<input type="hidden" name="action" value="update">
@@ -116,18 +117,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<div class="control-group {if isset($title_error)}warning{/if}">
 							<label class="control-label" for="title">Title</label>
 							<div class="controls">
-								<input id="title" name="title" class="input-xlarge" type="text" value="{$title|escape:'htmlall'}" maxlength="255">
+								<input id="title" name="title" class="input-xlarge" type="text" value="{$title}" maxlength="255">
 								{if isset($title_error)}
-									<span class="help-inline">{$title_error|escape:'htmlall'}</span>
+									<span class="help-inline">{$title_error}</span>
 								{/if}
 							</div>
 						</div>
 						<div class="control-group {if isset($rendered_error)}warning{/if}">
 							<label class="control-label" for="rendered">HTML</label>
 							<div class="controls">
-								<textarea id="rendered" name="rendered" class="input-xlarge" rows="4" cols="40">{$rendered|escape:'htmlall'}</textarea>
+								<textarea id="rendered" name="rendered" class="input-xlarge" rows="4" cols="40">{$rendered}</textarea>
 								{if isset($rendered_error)}
-									<span class="help-inline">{$rendered_error|escape:'htmlall'}</span>
+									<span class="help-inline">{$rendered_error}</span>
 								{/if}
 							</div>
 						</div>

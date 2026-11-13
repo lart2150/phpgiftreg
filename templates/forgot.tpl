@@ -67,9 +67,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<div class="control-group {if isset($error)}warning{/if}">
 							<label class="control-label" for="username">Username</label>
 							<div class="controls">
-								<input id="username" name="username" type="text" class="input-xlarge" value="{$username|escape:'htmlall'}">
+								<input id="username" name="username" type="text" class="input-xlarge" value="{$username}">
 								{if isset($error)}
-									<span class="help-inline">{$error|escape:'htmlall'}</span>
+									<span class="help-inline">{$error}</span>
 								{/if}
 								<p class="help-block">
 									Supply your username and click Submit.<br /> 

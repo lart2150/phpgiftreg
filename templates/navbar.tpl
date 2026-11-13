@@ -45,7 +45,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 							</ul>
 						</li>
 					{/if}
-					<li><a href="login.php?action=logout">Logout</a></li>
+					<li><a href="login.php?csrf={$csrf}&action=logout">Logout</a></li>
 				</ul>
 			</div>
 		</div>

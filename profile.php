@@ -28,6 +28,9 @@ else {
 	$userid = $_SESSION["userid"];
 }
 
+// state-changing requests must carry the per-session CSRF token.
+requireCsrfForAction();
+
 $action = "";
 if (!empty($_POST["action"])) {
 	$action = $_POST["action"];
@@ -53,7 +56,12 @@ if (!empty($_POST["action"])) {
 		$fullname = $_POST["fullname"];
 		$email = $_POST["email"];
 		$comment = $_POST["comment"];
-		$email_msgs = ($_POST["email_msgs"] == "on" ? 1 : 0);
+		$email_msgs = (isset($_POST["email_msgs"]) && $_POST["email_msgs"] == "on" ? 1 : 0);
+
+		if ($email != "" && !isValidEmail($email)) {
+			header("Location: " . getFullPath("index.php?message=Profile+not+saved%3A+that+e-mail+address+is+not+valid."));
+			exit;
+		}
 
 		try {
 			$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}users SET fullname = ?, email = ?, email_msgs = ?, comment = ? WHERE userid = ?");

@@ -70,7 +70,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		{if isset($error)}
 			<div class="row">
 				<div class="span8 offset2">
-					<div class="alert alert-block">{$error|escape:'htmlall'}</div>
+					<div class="alert alert-block">{$error}</div>
 				</div>
 			</div>
 		{/if}
@@ -113,19 +113,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 							<div class="control-group">
 								<label class="control-label" for="username">Username</label>
 								<div class="controls">
-									<input id="username" name="username" type="text" class="input-xlarge" value="{$username|escape:'htmlall'}" placeholder="Username">
+									<input id="username" name="username" type="text" class="input-xlarge" value="{$username}" placeholder="Username">
 								</div>
 							</div>
 							<div class="control-group">
 								<label class="control-label" for="fullname">Full name</label>
 								<div class="controls">
-									<input id="fullname" name="fullname" type="text" class="input-xlarge" value="{$fullname|escape:'htmlall'}" placeholder="Full name">
+									<input id="fullname" name="fullname" type="text" class="input-xlarge" value="{$fullname}" placeholder="Full name">
 								</div>
 							</div>
 							<div class="control-group">
 								<label class="control-label" for="email">E-mail address</label>
 								<div class="controls">
-									<input id="email" name="email" type="text" class="input-xlarge" value="{$email|escape:'htmlall'}" placeholder="you@somewhere.com">
+									<input id="email" name="email" type="text" class="input-xlarge" value="{$email}" placeholder="you@somewhere.com">
 								</div>
 							</div>
 							{if $familycount > 1}
@@ -135,7 +135,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 										<select name="familyid">
 											<option value="">(select one)</option>
 											{foreach from=$families item=row}
-												<option value="{$row.familyid}">{$row.familyname|escape:'htmlall'}</option>
+												<option value="{$row.familyid}">{$row.familyname}</option>
 											{/foreach}
 										</select>
 									</div>

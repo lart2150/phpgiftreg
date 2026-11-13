@@ -41,6 +41,8 @@ if (isset($_GET["action"]))
 else
 	$action = "";
 
+requireCsrfForAction(array("edit"));
+
 if ($action == "insert" || $action == "update") {
 	/* validate the data. */
 	$username = trim($_GET["username"]);
@@ -62,6 +64,10 @@ if ($action == "insert" || $action == "update") {
 	if ($email == "") {
 		$haserror = true;
 		$email_error = "An e-mail address is required.";
+	}
+	else if (!isValidEmail($email)) {
+		$haserror = true;
+		$email_error = "The e-mail address is not valid.";
 	}
 
 }
@@ -166,9 +172,18 @@ else if ($action == "update") {
 	}
 }
 else if ($action == "reset") {
-	$resetuserid = $_GET["userid"];
-	$resetemail = $_GET["email"];
-	
+	$resetuserid = (int) $_GET["userid"];
+
+	// always mail the address on file -- never one supplied in the request.
+	$stmt = $smarty->dbh()->prepare("SELECT email FROM {$opt["table_prefix"]}users WHERE userid = ?");
+	$stmt->bindParam(1, $resetuserid, PDO::PARAM_INT);
+	$stmt->execute();
+	$resetemail = $stmt->fetchColumn();
+	if (!isValidEmail($resetemail)) {
+		header("Location: " . getFullPath("users.php?message=That+user+has+no+valid+e-mail+address%2C+so+the+password+was+not+reset."));
+		exit;
+	}
+
 	// generate a password and insert the row.
 	$pwd = generatePassword($opt);
 	$stmt = $smarty->dbh()->prepare("UPDATE {$opt["table_prefix"]}users SET password = ? WHERE userid = ?");
@@ -180,7 +195,7 @@ else if ($action == "reset") {
 		"Gift Registry password reset",
 		"Your Gift Registry password was reset to $pwd.",
 		"From: {$opt["email_from"]}\r\nReply-To: {$opt["email_reply_to"]}\r\nX-Mailer: {$opt["email_xmailer"]}\r\n"
-	) or die("Mail not accepted for $email");
+	) or die("Mail not accepted for " . htmlspecialchars($resetemail));
 	header("Location: " . getFullPath("users.php?message=Password+reset."));
 	exit;
 }

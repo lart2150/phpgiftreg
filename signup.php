@@ -31,6 +31,9 @@ if (isset($_POST["action"]) && $_POST["action"] == "signup") {
 	if ($stmt->fetch()) {
 		$error = "The username '" . $username . "' is already taken.  Please choose another.";
 	}
+	else if (!isValidEmail($email)) {
+		$error = "Please enter a valid e-mail address.";
+	}
 	else {
 		// generate a password and insert the row.
 		// NOTE: if approval is required, this password will be replaced

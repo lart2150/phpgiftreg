@@ -27,6 +27,9 @@ else {
 	$userid = $_SESSION["userid"];
 }
 
+// state-changing requests must carry the per-session CSRF token.
+requireCsrfForAction(array("edit", "add"));
+
 // for security, let's make sure that if an itemid was passed in, it belongs
 // to $userid.  all operations on this page should only be performed by
 // the item's owner.
@@ -87,28 +90,24 @@ if (!empty($_REQUEST["action"])) {
 		}
 	}
 
-	if (!$haserror) {
-		if (isset($_REQUEST["image"]) && ($_REQUEST["image"] == "remove" || $_REQUEST["image"] == "replace")) {
-			deleteImageForItem((int) $_REQUEST["itemid"], $smarty->dbh(), $smarty->opt());
+	// image handling: only for insert/update, and only when images are enabled.
+	// the uploaded file must really be an image; it is stored under a random
+	// name with an extension derived from its detected type (never the
+	// client's filename), so nothing executable can land in the web root.
+	$image_base_filename = "";
+	if (!$haserror && ($action == "insert" || $action == "update") && $opt["allow_images"]) {
+		$imageaction = isset($_REQUEST["image"]) ? $_REQUEST["image"] : "";
+		if ($imageaction == "upload" || $imageaction == "replace") {
+			$saved = saveUploadedImage("imagefile", $opt, $image_error);
+			if ($saved === false) {
+				$haserror = true;
+			}
+			else {
+				$image_base_filename = $saved;
+			}
 		}
-		if (isset($_REQUEST["image"]) && ($_REQUEST["image"] == "upload" || $_REQUEST["image"] == "replace")) {
-			/* TODO: verify that it's an image using $_FILES["imagefile"]["type"] */
-			// what's the extension?
-			$parts = pathinfo($_FILES["imagefile"]["name"]);
-			$uploaded_file_ext = $parts['extension'];
-			// what is full path to store images?  get it from the currently executing script.
-			$parts = pathinfo($_SERVER["SCRIPT_FILENAME"]);
-			$upload_dir = $parts['dirname'];
-			// generate a temporary file in the configured directory.
-			$temp_name = tempnam($upload_dir . "/" . $opt["image_subdir"],"");
-			// unlink it, we really want an extension on that.
-			unlink($temp_name);
-			// here's the name we really want to use.  full path is included.
-			$image_filename = $temp_name . "." . $uploaded_file_ext;
-			// move the PHP temporary file to that filename.
-			move_uploaded_file($_FILES["imagefile"]["tmp_name"],$image_filename);
-			// the name we're going to record in the DB is the filename without the path.
-			$image_base_filename = basename($image_filename);
+		if (!$haserror && $action == "update" && ($imageaction == "remove" || $imageaction == "replace")) {
+			deleteImageForItem((int) $_REQUEST["itemid"], $smarty->dbh(), $smarty->opt());
 		}
 	}
 	
@@ -296,6 +295,9 @@ if (isset($url_error)) {
 	$smarty->assign('url_error', $url_error);
 }
 $smarty->assign('image_filename', $image_filename);
+if (isset($image_error)) {
+	$smarty->assign('image_error', $image_error);
+}
 $smarty->assign('comment', $comment);
 $smarty->assign('categories', $categories);
 $smarty->assign('ranks', $ranks);

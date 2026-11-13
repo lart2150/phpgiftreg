@@ -91,6 +91,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="row">
 			<div class="span8 offset2">
 <form name="changepwdform" id="changepwdform" action="profile.php" method="POST" class="well form-horizontal">
+	<input type="hidden" name="csrf" value="{$csrf}">
 	<input type="hidden" name="action" value="changepwd">
 	<fieldset>
 		<legend>Change Password</legend>
@@ -117,19 +118,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="row">
 			<div class="span8 offset2">
 <form name="profileform" id="profileform" action="profile.php" method="POST" class="well form-horizontal">
+	<input type="hidden" name="csrf" value="{$csrf}">
 	<input type="hidden" name="action" value="save">
 	<fieldset>
 		<legend>Update Profile</legend>
 		<div class="control-group">
 			<label class="control-label" for="fullname">Full name</label>
 			<div class="controls">
-				<input type="text" id="fullname" name="fullname" class="input-xlarge" value="{$fullname|escape:'htmlall'}">
+				<input type="text" id="fullname" name="fullname" class="input-xlarge" value="{$fullname}">
 			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label" for="email">E-mail address</label>
 			<div class="controls">
-				<input type="text" id="email" name="email" class="input-xlarge" value="{$email|escape:'htmlall'}">
+				<input type="text" id="email" name="email" class="input-xlarge" value="{$email}">
 			</div>
 		</div>
 		<div class="control-group">
@@ -142,7 +144,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="control-group">
 			<label class="control-label" for="comment">Comments / shipping address / etc. (optional)</label>
 			<div class="controls">
-				<textarea id="comment" name="comment" rows="5" cols="40">{$comment|escape:'htmlall'}</textarea>
+				<textarea id="comment" name="comment" rows="5" cols="40">{$comment}</textarea>
 			</div>
 		</div>
 		<div class="form-actions">

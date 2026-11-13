@@ -122,6 +122,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	<div class="row">
 		<div class="span8 offset2">
 			<form name="itemform" id="itemform" method="POST" action="item.php" enctype="multipart/form-data" class="well form-horizontal">
+				<input type="hidden" name="csrf" value="{$csrf}">
 				<fieldset>
 					<legend>{if $action == 'edit' || (isset($haserror) && $action == 'update')}Edit Item{else}Add Item{/if}</legend>
 					{if $action == 'edit' || (isset($haserror) && $action == 'update')}
@@ -133,7 +134,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 					<div class="control-group {if isset($description_error)}warning{/if}">
 						<label class="control-label" for="description">Description</label>
 						<div class="controls">
-							<input id="description" name="description" type="text" value="{$description|escape:'htmlall'}" class="input-xlarge" placeholder="Description" maxlength="255">
+							<input id="description" name="description" type="text" value="{$description}" class="input-xlarge" placeholder="Description" maxlength="255">
 							{if isset($description_error)}
 								<span class="help-inline">{$description_error}</span>
 							{/if}
@@ -145,7 +146,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 							<select id="category" name="category" class="input-xlarge">
 								<option value="" {if $category == NULL}SELECTED{/if}>Uncategorized</option>
 								{foreach from=$categories item=row}
-									<option value="{$row.categoryid}" {if $row.categoryid == $category}SELECTED{/if}>{$row.category|escape:'htmlall'}</option>
+									<option value="{$row.categoryid}" {if $row.categoryid == $category}SELECTED{/if}>{$row.category}</option>
 								{/foreach}
 							</select>
 							{if isset($category_error)}
@@ -154,18 +155,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						</div>
 					</div>
 					<div class="control-group {if isset($price_error)}warning{/if}">
-						<label class="control-label" for="price">Price ({$opt.currency_symbol})</label>
+						<label class="control-label" for="price">Price ({$opt.currency_symbol nofilter})</label>
 						<div class="controls">
-							<input id="price" name="price" type="text" value="{$price|escape:'htmlall'}" class="input-xlarge" placeholder="0.00">
+							<input id="price" name="price" type="text" value="{$price}" class="input-xlarge" placeholder="0.00">
 							{if isset($price_error)}
-								<span class="help-inline">{$price_error}</span>
+								<span class="help-inline">{$price_error nofilter}</span>
 							{/if}
 						</div>
 					</div>
 					<div class="control-group {if isset($source_error)}warning{/if}">
 						<label class="control-label" for="source">Store/Retailer</label>
 						<div class="controls">
-							<input id="source" name="source" type="text" value="{$source|escape:'htmlall'}" class="input-xlarge" maxlength="255" placeholder="Source">
+							<input id="source" name="source" type="text" value="{$source}" class="input-xlarge" maxlength="255" placeholder="Source">
 							{if isset($source_error)}
 								<span class="help-inline">{$source_error}</span>
 							{/if}
@@ -188,7 +189,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<div class="control-group {if isset($quantity_error)}warning{/if}">
 							<label class="control-label" for="quantity">Quantity</label>
 							<div class="controls">
-								<input id="quantity" name="quantity" type="text" value="{$quantity|escape:'htmlall'}" class="input-xlarge" maxlength="3">
+								<input id="quantity" name="quantity" type="text" value="{$quantity}" class="input-xlarge" maxlength="3">
 								{if isset($quantity_error)}
 									<span class="help-inline">{$quantity_error}</span>
 								{/if}
@@ -200,14 +201,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 					<div class="control-group {if isset($url_error)}warning{/if}">
 						<label class="control-label" for="url">URL (optional)</label>
 						<div class="controls">
-							<input id="url" name="url" type="text" value="{$url|escape:'htmlall'}" class="input-xlarge" maxlength="255">
+							<input id="url" name="url" type="text" value="{$url}" class="input-xlarge" maxlength="255">
 							{if isset($url_error)}
-								<span class="help-inline">{$url_error}</span>
+								<span class="help-inline">{$url_error nofilter}</span>
 							{/if}
 						</div>
 					</div>
 					{if $opt.allow_images}
-						<div class="control-group">
+						<div class="control-group {if isset($image_error)}warning{/if}">
 							<label class="control-label" for="image">Image (optional)</label>
 							<div class="controls">
 								{if $image_filename == ''}
@@ -225,13 +226,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									Replace existing image:
 									<input type="file" id="imagefile" name="imagefile">
 								{/if}
+								{if isset($image_error)}
+									<span class="help-inline">{$image_error}</span>
+								{/if}
 							</div>
 						</div>
 					{/if}
 					<div class="control-group">
 						<label class="control-label" for="comment">Comment</label>
 						<div class="controls">
-							<textarea id="comment" name="comment" class="input-xlarge" rows="2" cols="40">{$comment|escape:'htmlall'}</textarea>
+							<textarea id="comment" name="comment" class="input-xlarge" rows="2" cols="40">{$comment}</textarea>
 						</div>
 					</div>
 					<div class="form-actions">

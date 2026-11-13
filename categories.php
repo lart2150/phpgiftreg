@@ -30,6 +30,9 @@ else if ($_SESSION["admin"] != 1) {
 else {
 	$userid = $_SESSION["userid"];
 }
+
+// state-changing requests must carry the per-session CSRF token.
+requireCsrfForAction(array("edit"));
 if (!empty($_GET["message"])) {
     $message = $_GET["message"];
 }

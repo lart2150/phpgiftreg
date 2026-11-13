@@ -80,7 +80,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		{if isset($message)}
 			<div class="row">
 				<div class="span12">
-    				<div class="alert alert-block">{$message|escape:'htmlall'}</div>
+    				<div class="alert alert-block">{$message}</div>
 				</div>
 			</div>
 		{/if}
@@ -110,10 +110,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									<td>{if $row.approved}Yes{else}No{/if}</td>
 									<td>{if $row.admin}Yes{else}No{/if}</td>
 									<td align="right">
-										<a href="users.php?action=edit&userid={$row.userid}#userform"><img alt="Edit User" src="images/pencil.png" border="0" title="Edit User" /></a>
-										<a rel="confirmdeleteuser" data-content="{$row.fullname|escape:'htmlall'}" href="users.php?action=delete&userid={$row.userid}"><img alt="Delete User" src="images/bin.png" border="0" title="Delete User" /></a>
+										<a href="users.php?csrf={$csrf}&action=edit&userid={$row.userid}#userform"><img alt="Edit User" src="images/pencil.png" border="0" title="Edit User" /></a>
+										<a rel="confirmdeleteuser" data-content="{$row.fullname}" href="users.php?csrf={$csrf}&action=delete&userid={$row.userid}"><img alt="Delete User" src="images/bin.png" border="0" title="Delete User" /></a>
 										{if $row.email != ''}
-											<a href="users.php?action=reset&userid={$row.userid}&email={$row.email|escape:'htmlall'}"><img alt="Reset Password" src="images/key.png" border="0" title="Reset Password" /></a>
+											<a href="users.php?csrf={$csrf}&action=reset&userid={$row.userid}"><img alt="Reset Password" src="images/key.png" border="0" title="Reset Password" /></a>
 										{else}
 											Reset Pwd
 										{/if}
@@ -130,7 +130,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<a name="userform">
 		<div class="row">
 			<div class="span12">
-				<form name="theform" id="theform" method="get" action="users.php" class="well form-horizontal">	
+				<form name="theform" id="theform" method="get" action="users.php" class="well form-horizontal">
+					<input type="hidden" name="csrf" value="{$csrf}">	
 					{if $action == "edit" || (isset($haserror) && $action == "update")}
 						<input type="hidden" name="userid" value="{$edituserid}">
 						<input type="hidden" name="action" value="update">
@@ -142,27 +143,27 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<div class="control-group {if isset($username_error)}warning{/if}">
 							<label class="control-label" for="username">Username</label>
 							<div class="controls">
-								<input id="username" name="username" type="text" class="input-xlarge" value="{$username|escape:'htmlall'}" maxlength="255">
+								<input id="username" name="username" type="text" class="input-xlarge" value="{$username}" maxlength="255">
 								{if isset($username_error)}
-									<span class="help-inline">{$username_error|escape:'htmlall'}</span>
+									<span class="help-inline">{$username_error}</span>
 								{/if}
 							</div>
 						</div>
 						<div class="control-group {if isset($fullname_error)}warning{/if}">
 							<label class="control-label" for="fullname">Full name</label>
 							<div class="controls">
-								<input id="fullname" name="fullname" type="text" class="input-xlarge" value="{$fullname|escape:'htmlall'}" maxlength="255">
+								<input id="fullname" name="fullname" type="text" class="input-xlarge" value="{$fullname}" maxlength="255">
 								{if isset($fullname_error)}
-									<span class="help-inline">{$fullname_error|escape:'htmlall'}</span>
+									<span class="help-inline">{$fullname_error}</span>
 								{/if}
 							</div>
 						</div>
 						<div class="control-group {if isset($email_error)}warning{/if}">
 							<label class="control-label" for="email">E-mail address</label>
 							<div class="controls">
-								<input id="email" name="email" type="text" class="input-xlarge" value="{$email|escape:'htmlall'}" maxlength="255">
+								<input id="email" name="email" type="text" class="input-xlarge" value="{$email}" maxlength="255">
 								{if isset($email_error)}
-									<span class="help-inline">{$email_error|escape:'htmlall'}</span>
+									<span class="help-inline">{$email_error}</span>
 								{/if}
 							</div>
 						</div>

@@ -59,16 +59,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<tbody>
 							{foreach from=$shoplist item=row}
 								<tr>
-									<td>{$row.fullname|escape:'htmlall'}</td>
-									<td>{$row.description|escape:'htmlall'}</td>
-									<td>{$row.rendered}</td>
+									<td>{$row.fullname}</td>
+									<td>{$row.description}</td>
+									<td>{$row.rendered nofilter}</td>
 									<td>{$row.source}</td>
-									<td>{$row.price}</td>
+									<td>{$row.price nofilter}</td>
 								</tr>
 							{/foreach}
 						</tbody>
 					</table>
-					<h5>{$itemcount} item(s), {$totalprice} total.</h5>
+					<h5>{$itemcount} item(s), {$totalprice nofilter} total.</h5>
 				</div>
 			</div>
 		</div>

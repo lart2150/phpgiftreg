@@ -13,8 +13,77 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+/* Session cookie hardening.  Must run before any session_start(); every page
+	includes this file first. */
+if (session_status() == PHP_SESSION_NONE && !headers_sent()) {
+	ini_set("session.use_strict_mode", "1");		// reject attacker-chosen session ids
+	ini_set("session.use_only_cookies", "1");
+	ini_set("session.cookie_httponly", "1");		// no JavaScript access to the cookie
+	ini_set("session.cookie_samesite", "Lax");		// not sent on cross-site POSTs/subrequests
+	if (isHttps()) {
+		ini_set("session.cookie_secure", "1");
+	}
+}
+
+/* Don't leak URLs (which may carry the CSRF token) to other sites via Referer. */
+if (!headers_sent()) {
+	header("Referrer-Policy: same-origin");
+}
+
+function isHttps() {
+	return (!empty($_SERVER["HTTPS"]) && strtolower($_SERVER["HTTPS"]) != "off") ||
+		(isset($_SERVER["SERVER_PORT"]) && $_SERVER["SERVER_PORT"] == "443");
+}
+
+/* Per-session token protecting state-changing requests against CSRF. */
+function csrfToken() {
+	if (session_status() != PHP_SESSION_ACTIVE) {
+		return "";
+	}
+	if (empty($_SESSION["csrf_token"])) {
+		$_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+	}
+	return $_SESSION["csrf_token"];
+}
+
+function requireCsrf() {
+	$sent = isset($_REQUEST["csrf"]) && is_string($_REQUEST["csrf"]) ? $_REQUEST["csrf"] : "";
+	$token = csrfToken();
+	if ($token == "" || !hash_equals($token, $sent)) {
+		http_response_code(403);
+		die("Invalid or missing security token.  Please go back, reload the page and try again.");
+	}
+}
+
+/* Require a CSRF token when the request carries an action other than the
+	given read-only ones (e.g. "edit" or "add", which only display a form). */
+function requireCsrfForAction($readOnlyActions = array()) {
+	$action = isset($_REQUEST["action"]) ? $_REQUEST["action"] : "";
+	if ($action !== "" && !in_array($action, $readOnlyActions, true)) {
+		requireCsrf();
+	}
+}
+
+function isValidEmail($email) {
+	return is_string($email) && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+}
+
+function stripNewlines($s) {
+	return str_replace(array("\r", "\n"), " ", (string) $s);
+}
+
+/* May $shopper shop for $owner (approved, not pending)? */
+function canShopFor($shopper, $owner, $dbh, $opt) {
+	$stmt = $dbh->prepare("SELECT pending FROM {$opt["table_prefix"]}shoppers WHERE shopper = ? AND mayshopfor = ?");
+	$stmt->bindValue(1, (int) $shopper, PDO::PARAM_INT);
+	$stmt->bindValue(2, (int) $owner, PDO::PARAM_INT);
+	$stmt->execute();
+	$row = $stmt->fetch();
+	return $row && !$row["pending"];
+}
+
 function getFullPath($url) {
-	$fp = $_SERVER["SERVER_PORT"] == "443" ? "https://" : "http://";
+	$fp = isHttps() ? "https://" : "http://";
 	$fp .= $_SERVER["HTTP_HOST"];
 	$dir = dirname($_SERVER["PHP_SELF"]);
 	if ($dir != "/")
@@ -128,9 +197,9 @@ function sendMessage($sender, $recipient, $message, $dbh, $opt) {
 	$stmt->bindParam(1, $sender, PDO::PARAM_INT);
 	$stmt->bindParam(2, $recipient, PDO::PARAM_INT);
 	$stmt->bindParam(3, $message, PDO::PARAM_STR);
-	$stmt->bindValue(4, strftime("%Y-%m-%d"), PDO::PARAM_STR);
+	$stmt->bindValue(4, date("Y-m-d"), PDO::PARAM_STR);
 	$stmt->execute();
-	
+
 	// determine if e-mail must be sent.
 	$stmt = $dbh->prepare("SELECT ur.email_msgs, ur.email AS remail, us.fullname, us.email AS semail FROM {$opt["table_prefix"]}users ur " .
 			"INNER JOIN {$opt["table_prefix"]}users us ON us.userid = ? " .
@@ -139,12 +208,20 @@ function sendMessage($sender, $recipient, $message, $dbh, $opt) {
 	$stmt->bindParam(2, $recipient, PDO::PARAM_INT);
 	$stmt->execute();
 	if ($row = $stmt->fetch()) {
-		if ($row["email_msgs"] == 1) {
+		// only mail valid addresses, and only put a validated address in the
+		// Reply-To header (prevents header injection via a user's profile).
+		if ($row["email_msgs"] == 1 && isValidEmail($row["remail"])) {
+			$fullname = stripNewlines($row["fullname"]);
+			$headers = "From: {$opt["email_from"]}\r\n";
+			if (isValidEmail($row["semail"])) {
+				$headers .= "Reply-To: " . $row["semail"] . "\r\n";
+			}
+			$headers .= "X-Mailer: {$opt["email_xmailer"]}\r\n";
 			mail(
 				$row["remail"],
-				"Gift Registry message from " . $row["fullname"],
-				$row["fullname"] . " <" . $row["semail"] . "> sends:\r\n" . $message,
-				"From: {$opt["email_from"]}\r\nReply-To: " . $row["semail"] . "\r\nX-Mailer: {$opt["email_xmailer"]}\r\n"
+				"Gift Registry message from " . $fullname,
+				$fullname . " <" . $row["semail"] . "> sends:\r\n" . $message,
+				$headers
 			) or die("Mail not accepted for " . $row["remail"]);
 		}
 	}
@@ -230,13 +307,45 @@ function deleteImageForItem($itemid, $dbh, $opt) {
 	$stmt->execute();
 	if ($row = $stmt->fetch()) {
 		if ($row["image_filename"] != "") {
-			unlink($opt["image_subdir"] . "/" . $row["image_filename"]);
+			// basename() so a stored filename can never point outside the image dir.
+			$path = dirname(__FILE__) . "/../" . $opt["image_subdir"] . "/" . basename($row["image_filename"]);
+			if (is_file($path)) {
+				unlink($path);
+			}
 		}
 
 		$stmt = $dbh->prepare("UPDATE {$opt["table_prefix"]}items SET image_filename = NULL WHERE itemid = ?");
 		$stmt->bindParam(1, $itemid, PDO::PARAM_INT);
 		$stmt->execute();
 	}
+}
+
+/* Validate and store an uploaded image.  Returns the stored base filename,
+	or false (with $error set) if the upload is missing or not an image. */
+function saveUploadedImage($field, $opt, &$error) {
+	$allowed = array(
+		IMAGETYPE_JPEG => "jpg",
+		IMAGETYPE_PNG => "png",
+		IMAGETYPE_GIF => "gif",
+		IMAGETYPE_WEBP => "webp"
+	);
+	if (!isset($_FILES[$field]["error"]) || !is_int($_FILES[$field]["error"]) ||
+			$_FILES[$field]["error"] !== UPLOAD_ERR_OK || !is_uploaded_file($_FILES[$field]["tmp_name"])) {
+		$error = "Please choose an image file to upload.";
+		return false;
+	}
+	$info = @getimagesize($_FILES[$field]["tmp_name"]);
+	if ($info === false || !isset($allowed[$info[2]])) {
+		$error = "Only JPEG, PNG, GIF or WebP images can be uploaded.";
+		return false;
+	}
+	$name = bin2hex(random_bytes(16)) . "." . $allowed[$info[2]];
+	$dir = dirname(__FILE__) . "/../" . $opt["image_subdir"];
+	if (!move_uploaded_file($_FILES[$field]["tmp_name"], $dir . "/" . $name)) {
+		$error = "The image could not be saved.";
+		return false;
+	}
+	return $name;
 }
 
 function fixForJavaScript($s) {

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="row">
 			<div class="span12">
 				<form name="message" method="get" action="message.php" class="well form-horizontal">
+					<input type="hidden" name="csrf" value="{$csrf}">
 					<input type="hidden" name="action" value="send">
 					<fieldset>
 						<legend>Send a message</legend>
@@ -36,7 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 							<div class="controls">
 								<select name="recipients[]" size="{$rcount}" MULTIPLE class="input-xlarge">
 									{foreach from=$recipients item=row}
-										<option value="{$row.userid}">{$row.fullname|escape:'htmlall'}</option>
+										<option value="{$row.userid}">{$row.fullname}</option>
 									{/foreach}
 								</select>
 					 			<p class="help-block">(Hold CTRL while clicking to select multiple names.)</p>

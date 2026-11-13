@@ -31,6 +31,9 @@ else {
 	$userid = $_SESSION["userid"];
 }
 
+// state-changing requests must carry the per-session CSRF token.
+requireCsrfForAction();
+
 $action = $_GET["action"];
 if ($action == "approve") {
 	$pwd = generatePassword($opt);

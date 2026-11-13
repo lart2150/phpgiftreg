@@ -27,15 +27,25 @@ else {
 	$userid = $_SESSION["userid"];
 }
 
+// state-changing requests must carry the per-session CSRF token.
+requireCsrfForAction();
+
 $action = empty($_GET["action"]) ? "" : $_GET["action"];
 
 if ($action == "send") {
-	$msg = $_GET["msg"];
+	$msg = isset($_GET["msg"]) ? (string) $_GET["msg"] : "";
+	$recipients = (isset($_GET["recipients"]) && is_array($_GET["recipients"])) ? $_GET["recipients"] : array();
 
-	for ($i = 0; $i < count($_GET["recipients"]); $i++)
-		sendMessage($userid, (int) $_GET["recipients"][$i], $msg, $smarty->dbh(), $smarty->opt());
+	// only send to people this user is approved to shop for (the same list the form offers).
+	$sent = 0;
+	foreach (array_unique(array_map("intval", $recipients)) as $recipient) {
+		if (canShopFor($userid, $recipient, $smarty->dbh(), $opt)) {
+			sendMessage($userid, $recipient, $msg, $smarty->dbh(), $smarty->opt());
+			$sent++;
+		}
+	}
 		
-	header("Location: " . getFullPath("index.php?message=Your+message+has+been+sent+to+" . count($_GET["recipients"]) . "+recipient(s)."));
+	header("Location: " . getFullPath("index.php?message=Your+message+has+been+sent+to+" . $sent . "+recipient(s)."));
 	exit;
 }
 

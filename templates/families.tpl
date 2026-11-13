@@ -55,7 +55,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		{if isset($message)}
 			<div class="row">
 				<div class="span12">
-					<div class="alert alert-block">{$message|escape:'htmlall'}</div>
+					<div class="alert alert-block">{$message}</div>
 				</div>
 			</div>
 		{/if}
@@ -85,11 +85,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<tbody>
 							{foreach from=$families item=row}
 								<tr>
-									<td>{$row.familyname|escape:'htmlall'}</td>
+									<td>{$row.familyname}</td>
 									<td>{$row.members}</td>
 									<td>
-										<a href="families.php?action=edit&familyid={$row.familyid}#familyform"><img src="images/pencil.png" alt="Edit Family" title="Edit Family" border="0" /></a>
-										<a href="families.php?action=delete&familyid={$row.familyid}"><img src="images/bin.png" alt="Delete Family" title="Delete Family" border="0" /></a>
+										<a href="families.php?csrf={$csrf}&action=edit&familyid={$row.familyid}#familyform"><img src="images/pencil.png" alt="Edit Family" title="Edit Family" border="0" /></a>
+										<a href="families.php?csrf={$csrf}&action=delete&familyid={$row.familyid}"><img src="images/bin.png" alt="Delete Family" title="Delete Family" border="0" /></a>
 									</td>
 								</tr>
 							{/foreach}
@@ -103,7 +103,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<a name="familyform">
 		<div class="row">
 			<div class="span6">
-				<form name="theform" id="theform" method="get" action="families.php" class="well form-horizontal">	
+				<form name="theform" id="theform" method="get" action="families.php" class="well form-horizontal">
+					<input type="hidden" name="csrf" value="{$csrf}">	
 					{if $action == "edit" || (isset($haserror) && $action == "update")}
 						<input type="hidden" name="familyid" value="{$familyid}">
 						<input type="hidden" name="action" value="update">
@@ -111,13 +112,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						<input type="hidden" name="action" value="insert">
 					{/if}
 					<fieldset>
-						<legend>{if $action == "edit" || $action == "update"}Edit family '{$familyname|escape:'htmlall'}'{else}Add Family{/if}</legend>
+						<legend>{if $action == "edit" || $action == "update"}Edit family '{$familyname}'{else}Add Family{/if}</legend>
 						<div class="control-group {if isset($familyname_error)}warning{/if}">
 							<label class="control-label" for="familyname">Family name</label>
 							<div class="controls">
-								<input id="familyname" name="familyname" type="text" class="input-xlarge" value="{$familyname|escape:'htmlall'}" maxlength="255">
+								<input id="familyname" name="familyname" type="text" class="input-xlarge" value="{$familyname}" maxlength="255">
 								{if isset($familyname_error)}
-									<span class="help-inline">{$familyname_error|escape:'htmlall'}</span>
+									<span class="help-inline">{$familyname_error}</span>
 								{/if}
 							</div>
 						</div>
@@ -131,17 +132,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 			{if $action == "edit"}
 				<div class="span6">
-					<form name="membership" method="get" action="families.php" class="well form-horizontal">	
+					<form name="membership" method="get" action="families.php" class="well form-horizontal">
+						<input type="hidden" name="csrf" value="{$csrf}">	
 						<input type="hidden" name="familyid" value="{$familyid}">
 						<input type="hidden" name="action" value="members">
 						<fieldset>
-							<legend>Members of '{$familyname|escape:'htmlall'}'</legend>
+							<legend>Members of '{$familyname}'</legend>
 							<div class="control-group">
 								<label class="control-label" for="members[]">Members</label>
 								<div class="controls">
 									<select name="members[]" size="10" multiple>
 										{foreach from=$nonmembers item=row}
-											<option value="{$row.userid}" {if $row.familyid != ''}SELECTED{/if}>{$row.fullname|escape:'htmlall'}</option>
+											<option value="{$row.userid}" {if $row.familyid != ''}SELECTED{/if}>{$row.fullname}</option>
 										{/foreach}
 									</select>
 									<p class="help-block">(Hold CTRL while clicking to select multiple users.)</p>

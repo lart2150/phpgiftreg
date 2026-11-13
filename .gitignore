@@ -6,3 +6,4 @@ cache/*
 templates_c/*
 item_images/*
 !.gitkeep
+!item_images/.htaccess

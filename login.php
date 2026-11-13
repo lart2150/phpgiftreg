@@ -71,6 +71,10 @@ if (!empty($_POST["username"])) {
 			}
 
 			session_start();
+			// new session id on login (prevents session fixation), and a fresh
+			// CSRF token for the new session.
+			session_regenerate_id(true);
+			unset($_SESSION["csrf_token"]);
 			$_SESSION["userid"] = $row["userid"];
 			$_SESSION["fullname"] = $row["fullname"];
 			$_SESSION["admin"] = $row["admin"];

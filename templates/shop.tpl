@@ -50,13 +50,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 		<div class="row">
 			<div class="span12">
 				<div class="alert alert-block">
-					{$message|escape:'htmlall'}
+					{$message}
 				</div>
 			</div>
 		</div>
 	{/if}
 	<div class="row">
-		<h1>Shopping List for {$ufullname|escape:'htmlall'}</h1>
+		<h1>Shopping List for {$ufullname}</h1>
 	</div>
 	{if $opt.show_helptext}
 		<div class="row">
@@ -98,22 +98,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 			<tbody>
 			{foreach from=$shoprows item=row}
 				<tr valign="top">
-					<td nowrap>{$row.rendered}</td>
+					<td nowrap>{$row.rendered nofilter}</td>
 					<td>
-						{$row.description|escape:'htmlall'}
+						{$row.description}
 						{if $row.comment != ''}
-							<a class="btn btn-small" rel="popover" href="#" data-placement="right" data-original-title="Comment" data-content="{$row.comment|escape:'htmlall'}">...</a>
+							<a class="btn btn-small" rel="popover" href="#" data-placement="right" data-original-title="Comment" data-content="{$row.comment}">...</a>
 						{/if}
 						{if $row.url != ''}
 							<a href="{$row.url}" target="_blank"><img src="images/link.png" border="0" alt="URL" title="URL"></a>
 						{/if}
 						{if $row.image_filename != '' && $opt.allow_images}
-							<a rel="lightbox" href="{$opt.image_subdir}/{$row.image_filename}" title="{$row.description|escape:'htmlall'}"><img src="images/image.png" border="0" alt="Image" /></a>
+							<a rel="lightbox" href="{$opt.image_subdir}/{$row.image_filename}" title="{$row.description}"><img src="images/image.png" border="0" alt="Image" /></a>
 						{/if}
 					</td>
 					<td>{$row.category|default:"&nbsp;"}</td>
-					<td align="right">{$row.price}</td>
-					<td>{$row.source|escape:'htmlall'}</td>
+					<td align="right">{$row.price nofilter}</td>
+					<td>{$row.source}</td>
 					{if $row.quantity > 1}
 						<td>
 							{foreach from=$row.allocs item=alloc}
@@ -136,17 +136,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									{assign var="purchasetext" value="Purchase Item"}
 								{/if}
 								{if $row.avail > 0}
-									<a href="shop.php?action=reserve&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="{$reservetext|escape:'htmlall'}" title="{$reservetext|escape:'htmlall'}" src="images/locked.png" border="0" /></a>
+									<a href="shop.php?csrf={$csrf}&action=reserve&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="{$reservetext}" title="{$reservetext}" src="images/locked.png" border="0" /></a>
 								{/if}
 								{if $row.avail > 0 || $row.ireserved > 0}
-									<a href="shop.php?action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="{$purchasetext|escape:'htmlall'}" title="{$purchasetext|escape:'htmlall'}" src="images/credit-card-3.png" border="0" /></a>
+									<a href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="{$purchasetext}" title="{$purchasetext}" src="images/credit-card-3.png" border="0" /></a>
 								{/if}
 							{/if}
 							{if $row.ireserved > 0}
-								<a href="shop.php?action=release&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Release Item" title="Release Item" src="images/unlocked.png" border="0" /></a>
+								<a href="shop.php?csrf={$csrf}&action=release&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Release Item" title="Release Item" src="images/unlocked.png" border="0" /></a>
 							{/if}
 							{if $row.ibought > 0}
-								<a href="shop.php?action=return&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Return Item" title="Return Item" src="images/return.png" border="0" /></a>
+								<a href="shop.php?csrf={$csrf}&action=return&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Return Item" title="Return Item" src="images/return.png" border="0" /></a>
 							{/if}
 						{* </td> *}
 					{else}
@@ -155,7 +155,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 								<i>Available.</i>
 							</td>
 							<td nowrap align="right">
-								<a href="shop.php?action=reserve&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Reserve Item" title="Reserve Item" src="images/locked.png" border="0" /></a>&nbsp;<a href="shop.php?action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Purchase Item" title="Purchase Item" src="images/credit-card-3.png" border="0" /></a>
+								<a href="shop.php?csrf={$csrf}&action=reserve&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Reserve Item" title="Reserve Item" src="images/locked.png" border="0" /></a>&nbsp;<a href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Purchase Item" title="Purchase Item" src="images/credit-card-3.png" border="0" /></a>
 							{* </td> *}
 						{elseif $row.rfullname != ''}
 							{if $row.reservedid == $userid}
@@ -163,14 +163,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									<i><b>Reserved by you.</b></i>
 								</td>
 								<td align="right">
-									<a href="shop.php?action=release&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Release Item" title="Release Item" src="images/unlocked.png" border="0" /></a>&nbsp;<a href="shop.php?action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Purchase Item" title="Purchase Item" src="images/credit-card-3.png" border="0" /></a>
+									<a href="shop.php?csrf={$csrf}&action=release&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Release Item" title="Release Item" src="images/unlocked.png" border="0" /></a>&nbsp;<a href="shop.php?csrf={$csrf}&action=purchase&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Purchase Item" title="Purchase Item" src="images/credit-card-3.png" border="0" /></a>
 								{* </td> *}
 							{else}
 								<td>
 									{if $opt.anonymous_purchasing}
 										<i>Reserved.</i>
 									{else}
-										<i>Reserved by {$row.rfullname|escape:'htmlall'}.</i>
+										<i>Reserved by {$row.rfullname}.</i>
 									{/if}
 								</td>
 								<td>
@@ -182,7 +182,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									<i><b>Bought by you.</b></i>
 								</td>
 								<td align="right">
-									<a href="shop.php?action=return&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Return Item" title="Return Item" src="images/return.png" border="0" /></a>
+									<a href="shop.php?csrf={$csrf}&action=return&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="Return Item" title="Return Item" src="images/return.png" border="0" /></a>
 								{* </td> *}
 							{else}
 								{if $opt.anonymous_purchasing}
@@ -193,7 +193,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 									{* </td> *}
 								{else}
 									<td>
-										<i>Bought by {$row.bfullname|escape:'htmlall'}.</i>
+										<i>Bought by {$row.bfullname}.</i>
 									</td>
 									<td>
 									{* </td> *}
@@ -202,7 +202,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 						{/if}
 					{/if}
 					{* <td> *}
-						<a href="shop.php?action=copy&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="I Want This Too" title="I Want This Too" src="images/split-2.png" border="0" /></a>
+						<a href="shop.php?csrf={$csrf}&action=copy&itemid={$row.itemid}&shopfor={$shopfor}"><img alt="I Want This Too" title="I Want This Too" src="images/split-2.png" border="0" /></a>
 					</td>
 				</tr>
 			{/foreach}

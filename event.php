@@ -27,6 +27,9 @@ else {
 	$userid = $_SESSION["userid"];
 }
 
+// state-changing requests must carry the per-session CSRF token.
+requireCsrfForAction(array("edit"));
+
 if (!empty($_GET["message"])) {
     $message = $_GET["message"];
 }
@@ -70,7 +73,8 @@ if ($action == "insert" || $action == "update") {
 		$eventdate = FALSE;
 	}
 	$recurring = (strtoupper($_GET["recurring"]) == "ON" ? 1 : 0);
-	$systemevent = (strtoupper($_GET["systemevent"]) == "ON" ? 1 : 0);
+	// only admins may create/edit system (everyone's) events.
+	$systemevent = ($_SESSION["admin"] == 1 && isset($_GET["systemevent"]) && strtoupper($_GET["systemevent"]) == "ON") ? 1 : 0;
 		
 	$haserror = false;
 	if ($description == "") {
@@ -125,7 +129,7 @@ else if ($action == "insert") {
 	if (!$haserror) {
 		try {
 			$stmt = $smarty->dbh()->prepare("INSERT INTO {$opt["table_prefix"]}events(userid,description,eventdate,recurring) VALUES(?, ?, ?, ?)");
-			$stmt->bindValue(1, $systemevent ? NULL : $userid, PDO::PARAM_BOOL);
+			$stmt->bindValue(1, $systemevent ? NULL : (int) $userid, $systemevent ? PDO::PARAM_NULL : PDO::PARAM_INT);
 			$stmt->bindParam(2, $description, PDO::PARAM_STR);
 			$stmt->bindValue(3, $eventdate->format("Y-m-d"), PDO::PARAM_STR);
 			$stmt->bindParam(4, $recurring, PDO::PARAM_BOOL);
@@ -149,7 +153,7 @@ else if ($action == "update") {
 				"eventdate = ?, " .
 				"recurring = ? " . 
 				"WHERE eventid = ?");
-			$stmt->bindValue(1, $systemevent ? NULL : $userid, PDO::PARAM_BOOL);
+			$stmt->bindValue(1, $systemevent ? NULL : (int) $userid, $systemevent ? PDO::PARAM_NULL : PDO::PARAM_INT);
 			$stmt->bindParam(2, $description, PDO::PARAM_STR);
 			$stmt->bindValue(3, $eventdate->format("Y-m-d"), PDO::PARAM_STR);
 			$stmt->bindParam(4, $recurring, PDO::PARAM_BOOL);

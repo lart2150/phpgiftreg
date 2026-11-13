@@ -27,6 +27,10 @@ else {
 	$userid = $_SESSION["userid"];
 }
 
+// state-changing requests must carry the per-session CSRF token.
+// every request here changes data (a quantity-1 item is removed immediately).
+requireCsrf();
+
 $action = (!empty($_GET["action"]) ? $_GET["action"] : "");
 $itemid = (int) $_GET["itemid"];
 
