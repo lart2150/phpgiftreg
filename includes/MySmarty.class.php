@@ -1,10 +1,10 @@
 <?php
 
-define('SMARTY_DIR', dirname(__FILE__) . "/Smarty-3.1.48/libs/");
-require_once(SMARTY_DIR . "Smarty.class.php");
+// Smarty 5's libs/Smarty.class.php registers its own autoloader (no Composer needed).
+require_once(dirname(__FILE__) . "/Smarty-5.8.5/libs/Smarty.class.php");
 require_once(dirname(__FILE__) . "/config.php");
 
-class MySmarty extends Smarty {
+class MySmarty extends \Smarty\Smarty {
 	public function __construct() {
 		parent::__construct();
 
@@ -31,12 +31,12 @@ class MySmarty extends Smarty {
 		return $opt;
 	}
 
-	public function display($t = NULL, $cache_id = NULL, $compile_id = NULL, $parent = NULL) {
+	public function display($t = NULL, $cache_id = NULL, $compile_id = NULL) {
 		$isadmin = isset($_SESSION['admin']) ? $_SESSION['admin'] : false;
 		parent::assign('isadmin', $isadmin);
 		parent::assign('opt', $this->opt());
 		parent::assign('csrf', function_exists('csrfToken') ? csrfToken() : '');
-		parent::display($t, $cache_id, $compile_id, $parent);
+		parent::display($t, $cache_id, $compile_id);
 	}
 }
 ?>
