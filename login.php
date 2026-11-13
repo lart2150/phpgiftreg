@@ -27,15 +27,49 @@ if (isset($_GET["action"])) {
 
 if (!empty($_POST["username"])) {
 	$username = $_POST["username"];
-	$password = $_POST["password"];
+	$password = isset($_POST["password"]) ? $_POST["password"] : "";
 
 	try {
-		$stmt = $smarty->dbh()->prepare("SELECT userid, fullname, admin FROM {$opt["table_prefix"]}users WHERE username = ? AND password = {$opt["password_hasher"]}(?) AND approved = 1");
+		$dbh = $smarty->dbh();
+		$stmt = $dbh->prepare("SELECT userid, fullname, admin, password FROM {$opt["table_prefix"]}users WHERE username = ? AND approved = 1");
 		$stmt->bindParam(1, $username, PDO::PARAM_STR);
-		$stmt->bindParam(2, $password, PDO::PARAM_STR);
 
 		$stmt->execute();
-		if ($row = $stmt->fetch()) {
+		$row = false;
+		while ($candidate = $stmt->fetch()) {
+			if (verifyPassword($password, $candidate["password"], $opt, $needsRehash)) {
+				$row = $candidate;
+				break;
+			}
+		}
+		if ($row) {
+			if ($needsRehash) {
+				// upgrade legacy (MD5/SHA1/plaintext) or outdated hashes to password_hash().
+				// a failure here must never block the login itself.
+				try {
+					$newhash = hashPassword($password);
+					$upd = $dbh->prepare("UPDATE {$opt["table_prefix"]}users SET password = ? WHERE userid = ?");
+					$upd->bindValue(1, $newhash, PDO::PARAM_STR);
+					$upd->bindValue(2, (int) $row["userid"], PDO::PARAM_INT);
+					$upd->execute();
+
+					// if the password column is too narrow MySQL (non-strict mode) silently
+					// truncates the hash, which would lock the user out.  verify, and put
+					// the old value back if so.
+					$chk = $dbh->prepare("SELECT password FROM {$opt["table_prefix"]}users WHERE userid = ?");
+					$chk->bindValue(1, (int) $row["userid"], PDO::PARAM_INT);
+					$chk->execute();
+					if ($chk->fetchColumn() !== $newhash) {
+						error_log("phpgiftreg: password rehash for userid {$row["userid"]} did not persist; is users.password at least VARCHAR(255)? See sql/password-hash-upgrade.sql");
+						$upd->bindValue(1, $row["password"], PDO::PARAM_STR);
+						$upd->execute();
+					}
+				}
+				catch (PDOException $e) {
+					error_log("phpgiftreg: password rehash failed for userid {$row["userid"]}: " . $e->getMessage());
+				}
+			}
+
 			session_start();
 			$_SESSION["userid"] = $row["userid"];
 			$_SESSION["fullname"] = $row["fullname"];

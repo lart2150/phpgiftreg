@@ -158,18 +158,57 @@ function generatePassword($opt) {
 	//* (c) Hitech Scripts 2003
 	//* For more information, visit http://www.hitech-scripts.com
 	//* modified for phpgiftreg by Chris Clonch
-	mt_srand((double) microtime() * 1000000);
+	// uses random_int() (CSPRNG) so generated passwords aren't predictable.
+	$chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	$newstring = "";
-	if ($opt["password_length"] > 0) {
-		while(strlen($newstring) < $opt["password_length"]) {
-			switch (mt_rand(1,3)) {
-				case 1: $newstring .= chr(mt_rand(48,57)); break;  // 0-9
-				case 2: $newstring .= chr(mt_rand(65,90)); break;  // A-Z
-				case 3: $newstring .= chr(mt_rand(97,122)); break; // a-z
-			}
-		}
+	for ($i = 0; $i < (int) $opt["password_length"]; $i++) {
+		$newstring .= $chars[random_int(0, strlen($chars) - 1)];
 	}
 	return $newstring;
+}
+
+/* Hash a plaintext password for storage. */
+function hashPassword($password) {
+	return password_hash($password, PASSWORD_DEFAULT);
+}
+
+/* Check a plaintext password against a stored value.
+	Accepts password_hash() hashes as well as legacy values created with the
+	old "password_hasher" option (MD5, SHA1 or plaintext), so existing users
+	can still log in.  $needsRehash is set to true when the caller should
+	re-store the password with hashPassword(). */
+function verifyPassword($password, $stored, $opt, &$needsRehash) {
+	$needsRehash = false;
+	if ($password === "" || $stored === null || $stored === "") {
+		return false;
+	}
+
+	if (!empty(password_get_info($stored)["algo"])) {
+		if (!password_verify($password, $stored)) {
+			return false;
+		}
+		$needsRehash = password_needs_rehash($stored, PASSWORD_DEFAULT);
+		return true;
+	}
+
+	// legacy hash from the old MySQL-function based scheme.
+	$hasher = isset($opt["password_hasher"]) ? strtoupper($opt["password_hasher"]) : "";
+	switch ($hasher) {
+		case "MD5":
+			$ok = hash_equals(strtolower($stored), md5($password));
+			break;
+		case "SHA1":
+			$ok = hash_equals(strtolower($stored), sha1($password));
+			break;
+		case "":
+			$ok = hash_equals($stored, $password);
+			break;
+		default:
+			error_log("phpgiftreg: unsupported legacy password_hasher '$hasher'");
+			$ok = false;
+	}
+	$needsRehash = $ok;
+	return $ok;
 }
 
 function formatPrice($price, $opt) {

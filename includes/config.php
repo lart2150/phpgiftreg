@@ -104,14 +104,14 @@ function getGlobalOptions() {
 		*/
 		"hide_zero_price" => 1,
 
-		/* Whether or not to hash passwords.  Your version of MySQL may or may not
-			support it.
-			"MD5" = use MySQL's MD5() function,
-			"SHA1" = use MySQL's SHA1() function,
-			"" = use nothing (store passwords in plaintext).
-			If you switch this on, you're going to need to do a
-				UPDATE users SET password = MD5(password)
-			on your database to convert the passwords.  This operation is NON-REVERSIBLE!
+		/* LEGACY: how passwords were hashed before the switch to PHP's password_hash().
+			New and changed passwords are always stored with password_hash().  This
+			setting is only used to check old passwords; each user's password is
+			upgraded to password_hash() automatically the next time they log in.
+			"MD5" = old passwords were stored with MySQL's MD5(),
+			"SHA1" = old passwords were stored with MySQL's SHA1(),
+			"" = old passwords were stored in plaintext.
+			Leave this matching what your database used until everyone has logged in.
 		*/
 		"password_hasher" => "MD5",
 
